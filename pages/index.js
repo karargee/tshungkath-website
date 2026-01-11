@@ -136,9 +136,374 @@ export default function Home() {
       }
     };
 
+    window.openVideoLightbox = function(videoSrc) {
+      const lightbox = document.getElementById('lightbox');
+      const lightboxImg = document.getElementById('lightbox-img');
+      const lightboxVideo = document.getElementById('lightbox-video');
+      
+      if (lightbox && lightboxVideo) {
+        lightboxVideo.src = videoSrc;
+        lightboxVideo.style.display = 'block';
+        lightboxImg.style.display = 'none';
+        lightbox.style.display = 'flex';
+      }
+    };
+
     window.closeLightbox = function() {
       const lightbox = document.getElementById('lightbox');
-      if (lightbox) lightbox.style.display = 'none';
+      const lightboxVideo = document.getElementById('lightbox-video');
+      if (lightbox) {
+        lightbox.style.display = 'none';
+        if (lightboxVideo) {
+          lightboxVideo.pause();
+          lightboxVideo.src = '';
+        }
+      }
+    };
+
+    // Service Details Functions
+    window.openServiceDetails = function(serviceType) {
+      document.getElementById('serviceModal').classList.remove('hidden');
+      const content = document.getElementById('serviceModalContent');
+      
+      const serviceDetails = {
+        online: {
+          title: '💻 Online Sessions - Virtual Domination',
+          content: `
+            <div class="service-detail-section">
+              <h4>🎥 Premium Virtual Experiences</h4>
+              <p>Indulge in personalized online sessions where I take complete control through your screen. Each session is tailored to your deepest desires and limits.</p>
+              
+              <div class="service-features">
+                <h5>Session Types Available:</h5>
+                <ul>
+                  <li><strong>Sissy Training Sessions</strong> - Transform into the perfect sissy under my guidance</li>
+                  <li><strong>JOI & CEI Sessions</strong> - Follow my explicit instructions for ultimate pleasure</li>
+                  <li><strong>Humiliation & Degradation</strong> - Experience psychological domination</li>
+                  <li><strong>Findom Sessions</strong> - Financial submission and tribute training</li>
+                  <li><strong>Chastity Training</strong> - Learn denial and control under my supervision</li>
+                  <li><strong>Roleplay Scenarios</strong> - Custom fantasies brought to life</li>
+                </ul>
+              </div>
+              
+              <div class="pricing-breakdown">
+                <h5>💰 Professional Session Rates:</h5>
+                <div class="rate-item">30 Minutes - $150 <span class="rate-desc">Quick training & instruction sessions</span></div>
+                <div class="rate-item">60 Minutes - $250 <span class="rate-desc">Full domination experience with tasks</span></div>
+                <div class="rate-item">90 Minutes - $350 <span class="rate-desc">Extended training with multiple activities</span></div>
+                <div class="rate-item">2 Hours - $450 <span class="rate-desc">Complete transformation session</span></div>
+                <div class="rate-item">Custom Kink Sessions - $500+ <span class="rate-desc">Specialized fetishes & extreme play</span></div>
+                <div class="rate-item">Couples Training - $600 <span class="rate-desc">90min session for couples/partners</span></div>
+                <div class="rate-item">Group Sessions - $800 <span class="rate-desc">Multiple subs (max 3 people)</span></div>
+              </div>
+              
+              <div class="activity-breakdown">
+                <h5>🎯 Session Activities & Services:</h5>
+                <div class="activity-category">
+                  <h6>Domination & Control ($150-350)</h6>
+                  <ul>
+                    <li>Verbal humiliation & degradation</li>
+                    <li>Task assignment & completion monitoring</li>
+                    <li>Punishment protocols & discipline</li>
+                    <li>Orgasm control & denial training</li>
+                    <li>Behavioral modification sessions</li>
+                  </ul>
+                </div>
+                <div class="activity-category">
+                  <h6>Fetish & Kink Exploration ($250-500)</h6>
+                  <ul>
+                    <li>Foot worship & shoe fetish sessions</li>
+                    <li>Latex, leather & material fetishes</li>
+                    <li>Smoking fetish & cigarette domination</li>
+                    <li>Spit play & bodily worship</li>
+                    <li>Financial domination & tribute training</li>
+                    <li>Blackmail fantasy & exposure play</li>
+                  </ul>
+                </div>
+                <div class="activity-category">
+                  <h6>Advanced Training ($350-600)</h6>
+                  <ul>
+                    <li>Anal training & toy instruction</li>
+                    <li>Chastity device fitting & training</li>
+                    <li>Crossdressing guidance & feminization</li>
+                    <li>Cuckolding scenarios & roleplay</li>
+                    <li>BDSM technique instruction</li>
+                    <li>Slave contract negotiation</li>
+                  </ul>
+                </div>
+              </div>
+              
+              <div class="session-requirements">
+                <h5>📋 What You Need:</h5>
+                <ul>
+                  <li>Stable internet connection & HD webcam</li>
+                  <li>Private space for 1-2 hours</li>
+                  <li>Payment completed 24hrs before session</li>
+                  <li>Completed limits & interests form</li>
+                </ul>
+              </div>
+            </div>
+          `
+        },
+        sissy: {
+          title: '👗 Sissy Training Programs - Complete Feminization',
+          content: `
+            <div class="service-detail-section">
+              <h4>🎭 Professional Sissy Transformation</h4>
+              <p>Comprehensive feminization training programs designed to transform you into the perfect sissy. From beginner to advanced levels.</p>
+              
+              <div class="service-features">
+                <h5>Training Modules:</h5>
+                <ul>
+                  <li><strong>Makeup & Beauty Training</strong> - Learn feminine makeup techniques</li>
+                  <li><strong>Voice Feminization</strong> - Develop your feminine voice and mannerisms</li>
+                  <li><strong>Wardrobe Selection</strong> - Build the perfect sissy wardrobe</li>
+                  <li><strong>Posture & Movement</strong> - Walk, sit, and move like a lady</li>
+                  <li><strong>Behavioral Training</strong> - Feminine etiquette and submission</li>
+                  <li><strong>Sexual Training</strong> - Learn to please like a proper sissy</li>
+                </ul>
+              </div>
+              
+              <div class="pricing-breakdown">
+                <h5>💰 Professional Training Rates:</h5>
+                <div class="rate-item">Sissy Basics - $300 <span class="rate-desc">Single 2-hour introduction session</span></div>
+                <div class="rate-item">Intermediate Training - $600 <span class="rate-desc">2 sessions focusing on specific skills</span></div>
+                <div class="rate-item">Advanced Program - $900 <span class="rate-desc">3 sessions over 2 weeks with homework</span></div>
+                <div class="rate-item">Complete Transformation - $1500 <span class="rate-desc">6 sessions + 30 days ongoing support</span></div>
+                <div class="rate-item">VIP Sissy Package - $2000 <span class="rate-desc">8 sessions + wardrobe consultation</span></div>
+                <div class="rate-item">Maintenance Sessions - $200 <span class="rate-desc">Monthly check-ins for graduates</span></div>
+              </div>
+              
+              <div class="activity-breakdown">
+                <h5>🎯 Training Activities & Curriculum:</h5>
+                <div class="activity-category">
+                  <h6>Foundation Level ($300-600)</h6>
+                  <ul>
+                    <li>Basic makeup application & skincare routine</li>
+                    <li>Feminine posture & walking techniques</li>
+                    <li>Voice training & speech patterns</li>
+                    <li>Basic wardrobe selection & styling</li>
+                    <li>Nail care & feminine grooming</li>
+                    <li>Underwear fitting & lingerie selection</li>
+                  </ul>
+                </div>
+                <div class="activity-category">
+                  <h6>Intermediate Skills ($600-900)</h6>
+                  <ul>
+                    <li>Advanced makeup techniques & contouring</li>
+                    <li>Hair styling & wig maintenance</li>
+                    <li>Feminine mannerisms & body language</li>
+                    <li>Social etiquette & conversation skills</li>
+                    <li>Outfit coordination & fashion sense</li>
+                    <li>Confidence building exercises</li>
+                  </ul>
+                </div>
+                <div class="activity-category">
+                  <h6>Advanced Transformation ($900-2000)</h6>
+                  <ul>
+                    <li>Professional photo shoots & portfolio</li>
+                    <li>Public appearance training & practice</li>
+                    <li>Sexual technique & pleasure training</li>
+                    <li>Submission protocols & service training</li>
+                    <li>Lifestyle integration & daily routines</li>
+                    <li>Relationship dynamics & dating prep</li>
+                  </ul>
+                </div>
+              </div>
+              
+              <div class="rate-item">Maintenance Sessions - $200 <span class="rate-desc">Monthly check-ins</span></div>
+              </div>
+              
+              <div class="session-requirements">
+                <h5>📋 Program Includes:</h5>
+                <ul>
+                  <li>Personalized training curriculum</li>
+                  <li>Daily tasks and assignments</li>
+                  <li>Progress tracking and assessments</li>
+                  <li>24/7 text support during program</li>
+                  <li>Certificate of completion</li>
+                </ul>
+              </div>
+            </div>
+          `
+        },
+        inperson: {
+          title: '🏛️ In-Person Sessions - Real Domination',
+          content: `
+            <div class="service-detail-section">
+              <h4>👑 Elite In-Person Experiences</h4>
+              <p>Exclusive face-to-face sessions for the ultimate in professional domination. Discretion and safety guaranteed.</p>
+              
+              <div class="service-features">
+                <h5>Session Types:</h5>
+                <ul>
+                  <li><strong>Luxury Hotel Sessions</strong> - Upscale venues for premium experiences</li>
+                  <li><strong>Dungeon Play</strong> - Fully equipped BDSM dungeon sessions</li>
+                  <li><strong>Sissy Makeovers</strong> - Complete transformation in person</li>
+                  <li><strong>Worship Sessions</strong> - Body worship and foot fetish</li>
+                  <li><strong>Discipline Training</strong> - Real-time correction and training</li>
+                  <li><strong>Couples Sessions</strong> - Dominate you and your partner</li>
+                </ul>
+              </div>
+              
+              <div class="pricing-breakdown">
+                <h5>💰 Professional In-Person Rates:</h5>
+                <div class="rate-item">2 Hours - $700 <span class="rate-desc">Minimum booking time for all sessions</span></div>
+                <div class="rate-item">3 Hours - $950 <span class="rate-desc">Extended domination experience</span></div>
+                <div class="rate-item">4 Hours - $1200 <span class="rate-desc">Intensive training session</span></div>
+                <div class="rate-item">6 Hours - $1700 <span class="rate-desc">Half-day intensive experience</span></div>
+                <div class="rate-item">Overnight (12hrs) - $2500 <span class="rate-desc">Complete overnight domination</span></div>
+                <div class="rate-item">Weekend Package - $5000 <span class="rate-desc">48-hour transformation weekend</span></div>
+                <div class="rate-item">Travel Sessions - $1000+ <span class="rate-desc">Plus travel expenses & accommodation</span></div>
+              </div>
+              
+              <div class="activity-breakdown">
+                <h5>🎯 In-Person Activities & Services:</h5>
+                <div class="activity-category">
+                  <h6>Luxury Hotel Sessions ($700-1200)</h6>
+                  <ul>
+                    <li>Professional domination in 5-star hotels</li>
+                    <li>Sissy makeover & transformation</li>
+                    <li>Foot worship & body worship sessions</li>
+                    <li>Roleplay scenarios & fantasy fulfillment</li>
+                    <li>Discipline training & behavioral correction</li>
+                    <li>Intimate domination & control exercises</li>
+                  </ul>
+                </div>
+                <div class="activity-category">
+                  <h6>Extended Sessions ($1200-2500)</h6>
+                  <ul>
+                    <li>Complete sissy transformation with shopping</li>
+                    <li>Public humiliation & exposure training</li>
+                    <li>Advanced BDSM techniques & equipment use</li>
+                    <li>Psychological domination & mind control</li>
+                    <li>Chastity training & orgasm control</li>
+                    <li>Slave training & service protocols</li>
+                  </ul>
+                </div>
+                <div class="activity-category">
+                  <h6>VIP Experiences ($2500-5000)</h6>
+                  <ul>
+                    <li>Overnight domination & control</li>
+                    <li>Weekend transformation retreats</li>
+                    <li>Multiple session combinations</li>
+                    <li>Custom fetish exploration</li>
+                    <li>Professional photography sessions</li>
+                    <li>Lifestyle training & integration</li>
+                  </ul>
+                </div>
+              </div>
+              
+              <div class="session-requirements">
+                <h5>📋 Booking Requirements:</h5>
+                <ul>
+                  <li>48-hour advance booking minimum</li>
+                  <li>50% deposit required to secure date</li>
+                  <li>Valid ID and screening process</li>
+                  <li>Travel expenses covered by client</li>
+                  <li>Luxury venue costs additional</li>
+                </ul>
+              </div>
+            </div>
+          `
+        },
+        dungeon: {
+          title: '🏰 Dungeon Play Sessions - BDSM Paradise',
+          content: `
+            <div class="service-detail-section">
+              <h4>⛓️ Professional BDSM Dungeon</h4>
+              <p>Fully equipped dungeon space for serious BDSM play. All equipment sanitized and safety protocols followed.</p>
+              
+              <div class="service-features">
+                <h5>Available Equipment & Activities:</h5>
+                <ul>
+                  <li><strong>Bondage Equipment</strong> - Restraints, chains, suspension gear</li>
+                  <li><strong>Impact Play</strong> - Whips, floggers, paddles, canes</li>
+                  <li><strong>Sensory Play</strong> - Blindfolds, gags, nipple clamps</li>
+                  <li><strong>Electrical Play</strong> - Violet wands, TENS units</li>
+                  <li><strong>Medical Play</strong> - Sounds, speculums, enemas</li>
+                  <li><strong>Humiliation Scenes</strong> - Verbal and physical degradation</li>
+                </ul>
+              </div>
+              
+              <div class="pricing-breakdown">
+                <h5>💰 Professional Dungeon Rates:</h5>
+                <div class="rate-item">Light BDSM (2hrs) - $800 <span class="rate-desc">Beginner-friendly introduction</span></div>
+                <div class="rate-item">Moderate Session (3hrs) - $1100 <span class="rate-desc">Intermediate level play</span></div>
+                <div class="rate-item">Intense Session (3hrs) - $1400 <span class="rate-desc">Advanced practitioners only</span></div>
+                <div class="rate-item">Extreme Play (4hrs) - $1800 <span class="rate-desc">Heavy BDSM & advanced kinks</span></div>
+                <div class="rate-item">Custom Scenes (4hrs) - $2200 <span class="rate-desc">Specialized fetishes & roleplay</span></div>
+                <div class="rate-item">Couples Dungeon - $1600 <span class="rate-desc">3-hour session for two people</span></div>
+                <div class="rate-item">Group Sessions - $2500+ <span class="rate-desc">Multiple participants (max 4)</span></div>
+              </div>
+              
+              <div class="activity-breakdown">
+                <h5>🎯 Dungeon Activities & Equipment:</h5>
+                <div class="activity-category">
+                  <h6>Beginner Level ($800-1100)</h6>
+                  <ul>
+                    <li>Basic bondage & restraint training</li>
+                    <li>Light impact play with paddles & floggers</li>
+                    <li>Sensory deprivation & blindfolding</li>
+                    <li>Temperature play with ice & wax</li>
+                    <li>Basic discipline & obedience training</li>
+                    <li>Safe word establishment & communication</li>
+                  </ul>
+                </div>
+                <div class="activity-category">
+                  <h6>Intermediate Level ($1100-1400)</h6>
+                  <ul>
+                    <li>Advanced rope bondage & shibari</li>
+                    <li>Moderate impact play with whips & canes</li>
+                    <li>Electrical stimulation & violet wands</li>
+                    <li>Nipple & genital torture techniques</li>
+                    <li>Psychological domination & mind games</li>
+                    <li>Chastity device training & control</li>
+                  </ul>
+                </div>
+                <div class="activity-category">
+                  <h6>Advanced/Extreme Level ($1400-2500)</h6>
+                  <ul>
+                    <li>Suspension bondage & aerial play</li>
+                    <li>Heavy impact play & pain processing</li>
+                    <li>Medical play & clinical scenarios</li>
+                    <li>Breath play & edge play techniques</li>
+                    <li>Extreme humiliation & degradation</li>
+                    <li>Multi-hour endurance sessions</li>
+                  </ul>
+                </div>
+              </div>
+              
+              <div class="session-requirements">
+                <h5>📋 Safety & Requirements:</h5>
+                <ul>
+                  <li>Detailed negotiation before session</li>
+                  <li>Safe words and signals established</li>
+                  <li>Medical history disclosure required</li>
+                  <li>Aftercare included in all sessions</li>
+                  <li>Professional dungeon insurance</li>
+                </ul>
+              </div>
+            </div>
+          `
+        }
+      };
+      
+      const service = serviceDetails[serviceType];
+      if (service) {
+        content.innerHTML = `
+          <h3>${service.title}</h3>
+          ${service.content}
+          <div class="booking-actions">
+            <button onclick="window.location.href='mailto:kathtri57@gmail.com?subject=Booking: ${service.title}'" class="book-now-btn">📧 Book This Service</button>
+            <button onclick="window.openPayPalPayment(300)" class="payment-btn">💰 Pay Deposit</button>
+          </div>
+        `;
+      }
+    };
+    
+    window.closeServiceModal = function() {
+      document.getElementById('serviceModal').classList.add('hidden');
     };
 
     // Pricing Functions
@@ -300,6 +665,7 @@ export default function Home() {
               <li><a href="#about">About</a></li>
               <li><a href="#services">Services</a></li>
               <li><a href="#gallery">Gallery</a></li>
+              <li><a href="#services">🏰 Dungeon</a></li>
               <li><a href="#booking">Book Now</a></li>
               <li><a href="#pricing">Pricing</a></li>
               <li><a href="#testimonials">Reviews</a></li>
@@ -337,21 +703,29 @@ export default function Home() {
         <div className="container">
           <h2 className="premium-title">Premium Services</h2>
           <div className="services-grid">
-            <div className="service-card">
+            <div className="service-card" onClick={() => window.openServiceDetails('online')}>
+              <div className="service-icon">💻</div>
               <h3>Online Sessions</h3>
-              <p>Providing you with the most intimate and kinky experience</p>
+              <p>Providing you with the most intimate and kinky virtual experience</p>
+              <div className="service-preview">Click for detailed information & booking</div>
             </div>
-            <div className="service-card">
-              <h3>Sissy Training Roulettes</h3>
-              <p>Engaging in role-play sessions focus on dominance and submission</p>
+            <div className="service-card" onClick={() => window.openServiceDetails('sissy')}>
+              <div className="service-icon">👗</div>
+              <h3>Sissy Training Programs</h3>
+              <p>Complete feminization and sissy transformation programs</p>
+              <div className="service-preview">Click for detailed information & booking</div>
             </div>
-            <div className="service-card">
-              <h3>Meet Ups & Playdates</h3>
-              <p>Discreet in-person meetings for kinky playdates and sessions</p>
+            <div className="service-card" onClick={() => window.openServiceDetails('inperson')}>
+              <div className="service-icon">🏛️</div>
+              <h3>In-Person Sessions</h3>
+              <p>Discreet luxury meetings for ultimate domination experiences</p>
+              <div className="service-preview">Click for detailed information & booking</div>
             </div>
-            <div className="service-card">
+            <div className="service-card" onClick={() => window.openServiceDetails('dungeon')}>
+              <div className="service-icon">🏰</div>
               <h3>Dungeon Play Sessions</h3>
-              <p>Engaging in role-play sessions focus on dominance and submission and BDSM activities</p>
+              <p>Professional BDSM dungeon with full equipment and safety protocols</p>
+              <div className="service-preview">Click for detailed information & booking</div>
             </div>
           </div>
         </div>
@@ -391,6 +765,47 @@ export default function Home() {
               </div>
               <div className="gallery-item" onClick={() => window.openLightbox('/SzU6IOIX.jpeg')}>
                 <img src="/SzU6IOIX.jpeg" alt="Gallery Image" loading="lazy" />
+                <div className="media-type">📷</div>
+              </div>
+              <div className="gallery-item video-item" onClick={() => window.openVideoLightbox('/VID_20250802_155041.mp4')}>
+                <video className="video-thumbnail" muted preload="metadata">
+                  <source src="/VID_20250802_155041.mp4#t=1" type="video/mp4" />
+                </video>
+                <div className="play-button">▶️</div>
+                <div className="media-type">🎥</div>
+              </div>
+              <div className="gallery-item video-item" onClick={() => window.openVideoLightbox('/VID_20250805_001412.mp4')}>
+                <video className="video-thumbnail" muted preload="metadata">
+                  <source src="/VID_20250805_001412.mp4#t=1" type="video/mp4" />
+                </video>
+                <div className="play-button">▶️</div>
+                <div className="media-type">🎥</div>
+              </div>
+              <div className="gallery-item video-item" onClick={() => window.openVideoLightbox('/VID_20250811_074327.mp4')}>
+                <video className="video-thumbnail" muted preload="metadata">
+                  <source src="/VID_20250811_074327.mp4#t=1" type="video/mp4" />
+                </video>
+                <div className="play-button">▶️</div>
+                <div className="media-type">🎥</div>
+              </div>
+              <div className="gallery-item" onClick={() => window.openLightbox('/kathy-gallery/Sybian-on-bench.jpg')}>
+                <img src="/kathy-gallery/Sybian-on-bench.jpg" alt="Gallery Image" loading="lazy" />
+                <div className="media-type">📷</div>
+              </div>
+              <div className="gallery-item" onClick={() => window.openLightbox('/kathy-gallery/IMG_2608-scaled.jpg')}>
+                <img src="/kathy-gallery/IMG_2608-scaled.jpg" alt="Gallery Image" loading="lazy" />
+                <div className="media-type">📷</div>
+              </div>
+              <div className="gallery-item" onClick={() => window.openLightbox('/kathy-gallery/IMG_2616-scaled.jpg')}>
+                <img src="/kathy-gallery/IMG_2616-scaled.jpg" alt="Gallery Image" loading="lazy" />
+                <div className="media-type">📷</div>
+              </div>
+              <div className="gallery-item" onClick={() => window.openLightbox('/kathy-gallery/Milking-Table-1.jpg')}>
+                <img src="/kathy-gallery/Milking-Table-1.jpg" alt="Gallery Image" loading="lazy" />
+                <div className="media-type">📷</div>
+              </div>
+              <div className="gallery-item" onClick={() => window.openLightbox('/kathy-gallery/photo_2025-12-26_22-53-00.jpg')}>
+                <img src="/kathy-gallery/photo_2025-12-26_22-53-00.jpg" alt="Gallery Image" loading="lazy" />
                 <div className="media-type">📷</div>
               </div>
             </div>
@@ -602,6 +1017,16 @@ export default function Home() {
         </div>
       </section>
 
+      {/* Service Details Modal */}
+      <div id="serviceModal" className="service-modal hidden">
+        <div className="service-modal-content">
+          <span className="close-service" onClick={() => window.closeServiceModal()}>&times;</span>
+          <div id="serviceModalContent">
+            {/* Content will be populated by JavaScript */}
+          </div>
+        </div>
+      </div>
+
       {/* Auth Modal */}
       <div id="authModal" className="auth-modal hidden">
         <div className="auth-modal-content">
@@ -674,6 +1099,7 @@ export default function Home() {
         <div className="lightbox-content" onClick={(e) => e.stopPropagation()}>
           <span className="close-lightbox" onClick={() => window.closeLightbox()}>&times;</span>
           <img id="lightbox-img" className="lightbox-img" alt="Gallery" />
+          <video id="lightbox-video" controls className="lightbox-video"></video>
         </div>
       </div>
 
@@ -771,7 +1197,7 @@ export default function Home() {
         .nav-menu a:hover { background: linear-gradient(135deg, #ff1493, #ff6b9d); transform: translateY(-2px); }
         
         .hero { 
-          background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url('/Snapinsta.app_323280597_482304177421626_3152935471351356946_n_1080.jpg') center/cover;
+          background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url('/20250811_080612.jpg') center/cover;
           padding: 8rem 0; 
           text-align: center; 
           min-height: 100vh;
@@ -800,13 +1226,35 @@ export default function Home() {
         .about-text li:hover { transform: translateY(-5px); box-shadow: 0 8px 25px rgba(255,20,147,0.4); }
         
         .services-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 2rem; }
-        .service-card { background: linear-gradient(135deg, #111, #222); padding: 2.5rem; border-radius: 20px; border: 2px solid #ff1493; text-align: center; transition: all 0.5s; box-shadow: 0 4px 15px rgba(0,0,0,0.3); position: relative; overflow: hidden; }
+        .service-card { background: linear-gradient(135deg, #111, #222); padding: 2.5rem; border-radius: 20px; border: 2px solid #ff1493; text-align: center; transition: all 0.5s; box-shadow: 0 4px 15px rgba(0,0,0,0.3); position: relative; overflow: hidden; cursor: pointer; }
         .service-card::before { content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; background: linear-gradient(45deg, transparent, rgba(255,20,147,0.1), transparent); transform: rotate(45deg); transition: all 0.5s; opacity: 0; }
         .service-card:hover::before { opacity: 1; animation: shimmer 1s ease-in-out; }
         .service-card:hover { transform: translateY(-10px) scale(1.02); box-shadow: 0 15px 35px rgba(255,20,147,0.3); }
         @keyframes shimmer { 0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); } 100% { transform: translateX(100%) translateY(100%) rotate(45deg); } }
         .service-card h3 { color: #ff1493; margin-bottom: 1rem; font-size: 1.3rem; position: relative; z-index: 2; }
-        .service-card p { position: relative; z-index: 2; }
+        .service-card p { position: relative; z-index: 2; margin-bottom: 1rem; }
+        .service-icon { font-size: 3rem; margin-bottom: 1rem; position: relative; z-index: 2; }
+        .service-preview { background: rgba(255,20,147,0.2); padding: 0.5rem 1rem; border-radius: 15px; font-size: 0.9rem; color: #ff1493; font-weight: bold; position: relative; z-index: 2; }
+        
+        /* Service Modal */
+        .service-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 1000; display: flex; align-items: center; justify-content: center; overflow-y: auto; }
+        .service-modal-content { background: linear-gradient(135deg, #111, #222); padding: 3rem; border-radius: 20px; border: 2px solid #ff1493; max-width: 800px; width: 90%; position: relative; max-height: 90vh; overflow-y: auto; }
+        .close-service { position: absolute; top: 15px; right: 20px; color: white; font-size: 2rem; cursor: pointer; z-index: 10; }
+        .service-detail-section h4 { color: #ff1493; font-size: 1.5rem; margin-bottom: 1rem; }
+        .service-detail-section h5 { color: #ff6b9d; font-size: 1.2rem; margin: 1.5rem 0 0.5rem 0; }
+        .service-features ul, .session-requirements ul { list-style: none; padding-left: 0; }
+        .service-features li, .session-requirements li { background: rgba(255,20,147,0.1); margin: 0.5rem 0; padding: 0.8rem; border-radius: 8px; border-left: 3px solid #ff1493; }
+        .pricing-breakdown { background: rgba(0,0,0,0.3); padding: 1.5rem; border-radius: 10px; margin: 1rem 0; }
+        .rate-item { display: flex; justify-content: space-between; align-items: center; padding: 0.8rem; margin: 0.5rem 0; background: rgba(255,20,147,0.1); border-radius: 8px; }
+        .rate-desc { font-size: 0.9rem; color: #ccc; font-style: italic; }
+        .activity-breakdown { background: rgba(0,0,0,0.3); padding: 1.5rem; border-radius: 10px; margin: 1rem 0; }
+        .activity-category { margin-bottom: 1.5rem; padding: 1rem; background: rgba(255,20,147,0.05); border-radius: 8px; border-left: 3px solid #ff1493; }
+        .activity-category h6 { color: #ff6b9d; font-size: 1.1rem; margin-bottom: 0.8rem; font-weight: bold; }
+        .activity-category ul { list-style: none; padding-left: 0; }
+        .activity-category li { background: rgba(255,20,147,0.08); margin: 0.3rem 0; padding: 0.6rem; border-radius: 5px; border-left: 2px solid #ff6b9d; font-size: 0.95rem; }
+        .booking-actions { display: flex; gap: 1rem; margin-top: 2rem; justify-content: center; }
+        .book-now-btn, .payment-btn { background: linear-gradient(135deg, #ff1493, #ff6b9d); color: white; border: none; padding: 1rem 2rem; border-radius: 8px; cursor: pointer; font-size: 1rem; transition: all 0.3s; }
+        .book-now-btn:hover, .payment-btn:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(255,20,147,0.4); }
         
         .gallery-folder { background: linear-gradient(135deg, #111, #222); padding: 4rem; border-radius: 20px; text-align: center; cursor: pointer; border: 2px solid #ff1493; max-width: 500px; margin: 0 auto; transition: all 0.5s; box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
         .gallery-folder:hover { transform: scale(1.05) rotateY(5deg); box-shadow: 0 15px 35px rgba(255,20,147,0.4); }
@@ -819,6 +1267,10 @@ export default function Home() {
         .gallery-item:hover { transform: scale(1.05) rotate(2deg); box-shadow: 0 10px 25px rgba(255,20,147,0.5); }
         .gallery-item img { width: 100%; height: 250px; object-fit: cover; transition: all 0.3s; }
         .gallery-item:hover img { transform: scale(1.1); }
+        .video-item { position: relative; }
+        .video-thumbnail { width: 100%; height: 250px; object-fit: cover; }
+        .play-button { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 3rem; color: white; text-shadow: 2px 2px 4px rgba(0,0,0,0.8); pointer-events: none; }
+        .lightbox-video { max-width: 90%; max-height: 90%; border-radius: 10px; }
         .media-type { position: absolute; top: 10px; right: 10px; background: rgba(0,0,0,0.8); padding: 8px; border-radius: 8px; font-size: 1.2rem; }
         
         .booking-content { display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; }
