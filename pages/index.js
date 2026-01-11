@@ -771,7 +771,7 @@ export default function Home() {
         .nav-menu a:hover { background: linear-gradient(135deg, #ff1493, #ff6b9d); transform: translateY(-2px); }
         
         .hero { 
-          background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url('https://images.unsplash.com/photo-1518709268805-4e9042af2176?w=1920&h=1080&fit=crop') center/cover;
+          background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url('/Snapinsta.app_323280597_482304177421626_3152935471351356946_n_1080.jpg') center/cover;
           padding: 8rem 0; 
           text-align: center; 
           min-height: 100vh;
