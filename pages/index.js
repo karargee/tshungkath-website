@@ -14,6 +14,99 @@ export default function Home() {
     { sender: 'Mistress Kathy', message: 'Good slut. I\'m going to break you and make you beg for more 💋', time: '10:32 AM' }
   ])
   const [newMessage, setNewMessage] = useState('')
+  const [serviceModal, setServiceModal] = useState({ open: false, service: '' })
+
+  const serviceDetails = {
+    'Online Domination': {
+      title: '🔥 Online Domination Sessions',
+      description: 'Complete control through your screen - I own you digitally',
+      details: [
+        '💻 HD cam-to-cam sessions with full audio control',
+        '🎯 JOI (Jerk Off Instructions) - I control when and how you touch yourself',
+        '💦 CEI (Cum Eating Instructions) - You\'ll swallow every drop for me',
+        '😈 Humiliation and degradation - I\'ll break down your ego completely',
+        '🔒 Orgasm control and denial - Beg me for permission to cum',
+        '📱 Tasks and assignments between sessions to keep you obedient',
+        '🎭 Role-play scenarios: boss/employee, teacher/student, mommy/baby',
+        '⏰ Sessions: 30min ($150), 60min ($250), 90min ($350)'
+      ]
+    },
+    'Sissy Transformation': {
+      title: '👗 Complete Sissy Transformation',
+      description: 'Turn you into my perfect feminine slut step by step',
+      details: [
+        '💄 Makeup tutorials - Learn to look like a proper whore',
+        '👠 Walking in heels training - Strut like the slut you are',
+        '🎀 Outfit selection and styling - Dress to please men',
+        '💅 Voice feminization coaching - Sound like a real girl',
+        '🛍️ Shopping assignments for lingerie, dresses, and accessories',
+        '📸 Photo shoots to document your transformation progress',
+        '🌟 Public feminization tasks (when ready and consenting)',
+        '💰 Packages: Basic ($500), Advanced ($1000), Complete Slut ($2000)'
+      ]
+    },
+    'Financial Domination': {
+      title: '💰 Financial Domination & Wallet Rape',
+      description: 'Your money belongs to me - I\'ll drain you dry',
+      details: [
+        '💳 Tribute demands - Send money to prove your devotion',
+        '🛒 Shopping sprees on your dime - Buy me whatever I want',
+        '📊 Budget control - I decide how you spend YOUR money',
+        '🎰 Financial games and blackmail scenarios',
+        '💸 Wallet inspection - Show me every card and account',
+        '🏦 Bill paying - I might pay your bills... or make them worse',
+        '📱 Real-time money transfers during sessions',
+        '💎 Tributes: $50-$5000+ depending on your wallet size'
+      ]
+    },
+    'Foot Worship': {
+      title: '👠 Foot Worship & Sole Submission',
+      description: 'Worship my perfect feet like the pathetic foot slut you are',
+      details: [
+        '👣 Foot massage instructions - Learn to worship properly',
+        '💅 Pedicure funding - Keep my feet perfect for you',
+        '👠 Shoe and sock sniffing sessions',
+        '🦶 Toe sucking and sole licking training',
+        '📏 Foot measurement and comparison humiliation',
+        '🧦 Worn sock and stocking sales for devoted foot slaves',
+        '📱 Custom foot photos and videos',
+        '💰 Sessions: $100-$300, Custom content: $50-$200'
+      ]
+    },
+    'Chastity Training': {
+      title: '🔒 Chastity Training & Orgasm Control',
+      description: 'Lock up that pathetic cock - I control your pleasure now',
+      details: [
+        '🔐 Device selection and fitting guidance',
+        '⏰ Lock-up periods from hours to months',
+        '🗝️ Key holding services - I decide when you\'re free',
+        '📊 Orgasm tracking and denial schedules',
+        '💦 Ruined orgasm training when you\'ve been good',
+        '🎯 Tasks to earn release time',
+        '📱 Check-in requirements and photo proof',
+        '💰 Training: $200-$800, Long-term control: $500-$2000/month'
+      ]
+    },
+    'Private Mobile Dungeon': {
+      title: '🚐 Private Mobile Dungeon Experience',
+      description: 'I bring my fully equipped dungeon directly to you - ultimate discretion and convenience',
+      details: [
+        '🚐 Custom-built mobile dungeon van with professional BDSM equipment',
+        '🏠 Discreet arrival at your location - neighbors will never know',
+        '⛓️ Full restraint systems: St. Andrew\'s cross, suspension points, bondage table',
+        '🔥 Impact play equipment: floggers, paddles, whips, canes, crops',
+        '🔒 Chastity devices and orgasm control equipment selection',
+        '💉 Medical play setup: examination table, speculums, sounds, catheters',
+        '👗 Sissy transformation station: makeup, wigs, lingerie, heels',
+        '🎪 Milking machine and prostate massage equipment',
+        '🧼 Professional cleaning and sanitization between sessions',
+        '📱 Booking requires 48-hour notice and location approval',
+        '🏨 Available for hotel visits, private residences, or secluded locations',
+        '💰 Sessions: 2hr minimum ($800), 4hr ($1400), Overnight ($2500)',
+        '🛡️ Complete discretion guaranteed - unmarked vehicle, professional setup'
+      ]
+    }
+  }
 
   return (
     <>
@@ -30,8 +123,8 @@ export default function Home() {
           zIndex: 50000, boxShadow: '0 4px 12px rgba(0,0,0,0.15)'
         }}>
           <ul style={{ listStyle: 'none', margin: 0, padding: 0 }}>
-            {['🏠 Home', '👤 About', '💼 Services', '🏰 Dungeon', '💰 Pricing', '📅 Book Now', '📞 Contact'].map((item, i) => (
-              <li key={i}><a href={['#home','#about','#services','#dungeon','#pricing','#booking','#contact'][i]} onClick={() => setMobileMenuOpen(false)} style={{
+            {['🏠 Home', '👤 About', '💼 Services', '💰 Pricing', '📅 Book Now', '📞 Contact'].map((item, i) => (
+              <li key={i}><a href={['#home','#about','#services','#pricing','#booking','#contact'][i]} onClick={() => setMobileMenuOpen(false)} style={{
                 display: 'block', padding: '12px 16px', color: '#333', textDecoration: 'none',
                 borderBottom: '1px solid #eee', fontSize: '14px'
               }}>{item}</a></li>
@@ -46,6 +139,37 @@ export default function Home() {
         background: 'linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab)',
         backgroundSize: '400% 400%', animation: 'gradientShift 15s ease infinite'
       }} />
+
+      {/* Floating Background Elements */}
+      <div style={{
+        position: 'fixed', top: 0, left: 0, width: '100%', height: '100%',
+        pointerEvents: 'none', zIndex: -1, overflow: 'hidden'
+      }}>
+        {['💋', '🔥', '⛓️', '🖤', '💜', '👠', '🔒', '💰'].map((emoji, i) => (
+          <div key={i} style={{
+            position: 'absolute',
+            left: `${10 + i * 12}%`,
+            top: `${20 + (i % 3) * 30}%`,
+            animation: `float ${4 + i}s ease-in-out infinite`,
+            fontSize: '3rem',
+            opacity: 0.15,
+            transform: `rotate(${i * 45}deg)`
+          }}>{emoji}</div>
+        ))}
+        {Array.from({length: 20}).map((_, i) => (
+          <div key={`particle-${i}`} style={{
+            position: 'absolute',
+            left: `${Math.random() * 100}%`,
+            top: `${Math.random() * 100}%`,
+            width: '4px',
+            height: '4px',
+            background: '#ff1493',
+            borderRadius: '50%',
+            animation: `particle ${5 + Math.random() * 10}s linear infinite`,
+            opacity: 0.3
+          }} />
+        ))}
+      </div>
 
       {/* Navigation */}
       <nav className="navbar">
@@ -68,7 +192,10 @@ export default function Home() {
       </nav>
 
       {/* Hero */}
-      <section className="hero">
+      <section className="hero" style={{
+        backgroundImage: 'linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), url("/20250818_053853.jpg")',
+        backgroundSize: 'cover', backgroundPosition: 'center', backgroundAttachment: 'fixed'
+      }}>
         <div className="hero-content">
           <h1>TshungKath</h1>
           <p>🔥 Dominant trans mistress ready to explore your deepest fantasies and push your limits. Submit to my control and experience true pleasure through pain and obedience. 💋</p>
@@ -77,7 +204,10 @@ export default function Home() {
       </section>
 
       {/* About */}
-      <section id="about" className="about">
+      <section id="about" className="about" style={{
+        backgroundImage: 'linear-gradient(rgba(255,255,255,0.9), rgba(255,255,255,0.9)), url("/Snapchat-2048414736.jpg")',
+        backgroundSize: 'cover', backgroundPosition: 'center', backgroundAttachment: 'fixed'
+      }}>
         <div className="container">
           <h2>About Me</h2>
           <p>Hello! I'm Kathy, your kinky trans mistress specializing in domination and submission experiences. I provide exceptional personalized sessions for dedicated sluts and subs, helping you explore your deepest desires and push your limits in a safe, discreet environment.</p>
@@ -85,98 +215,31 @@ export default function Home() {
       </section>
 
       {/* Services */}
-      <section className="services">
+      <section className="services" style={{
+        backgroundImage: 'linear-gradient(rgba(255,255,255,0.95), rgba(255,255,255,0.95)), url("/5f859e2079de2-320-3.jpg")',
+        backgroundSize: 'cover', backgroundPosition: 'center'
+      }}>
         <div className="container">
           <h2>Premium Services</h2>
           <div className="services-grid">
-            <div className="service-card">
-              <h3>🔥 Online Domination</h3>
-              <p>Intense cam sessions where I control every move you make</p>
-            </div>
-            <div className="service-card">
-              <h3>👗 Sissy Transformation</h3>
-              <p>Turn you into my perfect little slut through complete feminization</p>
-            </div>
-            <div className="service-card">
-              <h3>💰 Financial Domination</h3>
-              <p>Drain your wallet while you beg for more abuse</p>
-            </div>
-            <div className="service-card">
-              <h3>👠 Foot Worship</h3>
-              <p>Worship my perfect feet like the pathetic sub you are</p>
-            </div>
-            <div className="service-card">
-              <h3>🔒 Chastity Training</h3>
-              <p>Lock you up and control your orgasms completely</p>
-            </div>
+            {[
+              { key: 'Online Domination', title: '🔥 Online Domination', desc: 'Intense cam sessions where I control every move you make' },
+              { key: 'Sissy Transformation', title: '👗 Sissy Transformation', desc: 'Turn you into my perfect little slut through complete feminization' },
+              { key: 'Financial Domination', title: '💰 Financial Domination', desc: 'Drain your wallet while you beg for more abuse' },
+              { key: 'Foot Worship', title: '👠 Foot Worship', desc: 'Worship my perfect feet like the pathetic sub you are' },
+              { key: 'Private Mobile Dungeon', title: '🚐 Mobile Dungeon', desc: 'I bring my fully equipped dungeon directly to you' }
+            ].map((service, i) => (
+              <div key={i} className="service-card" onClick={() => setServiceModal({ open: true, service: service.key })}>
+                <h3>{service.title}</h3>
+                <p>{service.desc}</p>
+                <div className="service-overlay">Click for Details</div>
+              </div>
+            ))}
           </div>
         </div>
       </section>
 
-      {/* Dungeon */}
-      <section className="dungeon">
-        <div className="container">
-          <h2 style={{
-            background: 'linear-gradient(45deg, #8b008b, #ff1493, #000)',
-            WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent'
-          }}>🏰 My Private Dungeon</h2>
-          <div className="dungeon-grid">
-            <div className="dungeon-card">
-              <div className="dungeon-image">
-                <img src="/dungeon/IMG_2603-scaled.jpg" alt="Restraint Station" style={{ width: '100%', height: '200px', objectFit: 'cover', borderRadius: '10px' }} />
-              </div>
-              <h3>⛓️ Restraint Station</h3>
-              <p>Professional bondage equipment including St. Andrew's cross, suspension points, and medical restraints</p>
-            </div>
-            <div className="dungeon-card">
-              <div className="dungeon-image">
-                <img src="/dungeon/IMG_2608-scaled.jpg" alt="Impact Play" style={{ width: '100%', height: '200px', objectFit: 'cover', borderRadius: '10px' }} />
-              </div>
-              <h3>🔥 Impact Play Area</h3>
-              <p>Paddles, floggers, whips, and canes for proper discipline and punishment sessions</p>
-            </div>
-            <div className="dungeon-card">
-              <div className="dungeon-image">
-                <img src="/dungeon/IMG_2616-scaled.jpg" alt="Transformation" style={{ width: '100%', height: '200px', objectFit: 'cover', borderRadius: '10px' }} />
-              </div>
-              <h3>🎭 Transformation Chamber</h3>
-              <p>Full sissy makeover station with makeup, wigs, lingerie, and feminine accessories</p>
-            </div>
-            <div className="dungeon-card">
-              <div className="dungeon-image">
-                <img src="/dungeon/image-1-1.jpg" alt="Chastity Training" style={{ width: '100%', height: '200px', objectFit: 'cover', borderRadius: '10px' }} />
-              </div>
-              <h3>🔒 Chastity Training</h3>
-              <p>Collection of chastity devices and orgasm control equipment for long-term training</p>
-            </div>
-            <div className="dungeon-card">
-              <div className="dungeon-image">
-                <img src="/dungeon/Milking-Table-1.jpg" alt="Milking Station" style={{ width: '100%', height: '200px', objectFit: 'cover', borderRadius: '10px' }} />
-              </div>
-              <h3>🥛 Milking Station</h3>
-              <p>Specialized milking table for prostate massage and forced orgasm sessions</p>
-            </div>
-            <div className="dungeon-card">
-              <div className="dungeon-image">
-                <img src="/dungeon/Sybian-on-bench.jpg" alt="Sybian Machine" style={{ width: '100%', height: '200px', objectFit: 'cover', borderRadius: '10px' }} />
-              </div>
-              <h3>🎪 Sybian Machine</h3>
-              <p>High-powered vibrating machine for intense forced orgasm training and edging</p>
-            </div>
-          </div>
-          <div className="dungeon-rules">
-            <h3>🔥 Dungeon Rules & Safety</h3>
-            <ul>
-              <li>Safe words always respected - "Yellow" to slow down, "Red" to stop immediately</li>
-              <li>All equipment professionally maintained and sanitized between sessions</li>
-              <li>Health screening required for all in-person dungeon sessions</li>
-              <li>Limits discussed and agreed upon before any session begins</li>
-              <li>Aftercare provided - water, snacks, and emotional support included</li>
-              <li>Discretion guaranteed - private entrance and soundproofed rooms</li>
-            </ul>
-          </div>
-        </div>
-      </section>
+
 
       {/* Gallery */}
       <section id="gallery" className="gallery">
@@ -225,7 +288,10 @@ export default function Home() {
       </section>
 
       {/* Testimonials */}
-      <section id="testimonials" className="testimonials">
+      <section id="testimonials" className="testimonials" style={{
+        backgroundImage: 'linear-gradient(rgba(255,255,255,0.9), rgba(255,255,255,0.9)), url("/IZ1KqdnC.jpeg")',
+        backgroundSize: 'cover', backgroundPosition: 'center'
+      }}>
         <div className="container">
           <h2>Client Reviews</h2>
           <div className="testimonials-grid">
@@ -245,14 +311,26 @@ export default function Home() {
       </section>
 
       {/* Pricing */}
-      <section id="pricing" className="pricing">
+      <section id="pricing" className="pricing" style={{
+        backgroundImage: 'linear-gradient(rgba(248,249,250,0.95), rgba(248,249,250,0.95)), url("/SzU6IOIX.jpeg")',
+        backgroundSize: 'cover', backgroundPosition: 'center'
+      }}>
         <div className="container">
           <h2>💰 Service Rates</h2>
           <div className="pricing-grid">
             {[
-              { title: "🔥 Domination Sessions", price: "$150 - $750", features: ["HD cam domination", "Humiliation & degradation", "JOI & CEI instructions"] },
-              { title: "⛓️ BDSM Training", price: "$300 - $1500", features: ["Pain training protocols", "Slave position training", "Punishment sessions"] },
-              { title: "👗 Sissy Makeover", price: "$500 - $2000", features: ["Complete feminization", "Makeup & dress training", "Slut behavior coaching"] }
+              { title: "🔥 Online Domination Sessions", price: "$150 - $750", features: ["HD cam domination with full control", "JOI & CEI instructions - I control your orgasms", "Humiliation & degradation sessions", "Custom fetish content creation", "Task assignments between sessions"] },
+              { title: "⛓️ BDSM Training & Pain Play", price: "$300 - $1500", features: ["Pain tolerance training protocols", "Slave position and behavior training", "Impact play instruction (paddles, whips)", "Bondage and restraint techniques", "Safe word establishment and limits"] },
+              { title: "👗 Complete Sissy Transformation", price: "$500 - $2000", features: ["Full feminization makeover process", "Makeup tutorials and dress training", "Voice coaching and mannerism training", "Public humiliation preparation", "Wardrobe consultation and shopping"] },
+              { title: "💰 Financial Domination & Control", price: "$50 - $5000+", features: ["Tribute demands and wallet inspection", "Complete budget control and monitoring", "Shopping sprees on your expense", "Financial games and blackmail scenarios", "Real-time money transfer sessions"] },
+              { title: "👠 Foot Worship & Sole Training", price: "$100 - $300", features: ["Proper foot massage instruction", "Toe sucking and sole licking training", "Shoe and sock worship sessions", "Custom foot content (photos/videos)", "Worn item sales for devoted slaves"] },
+              { title: "🔒 Chastity Control & Denial", price: "$200 - $2000/mo", features: ["Device selection and fitting guidance", "Long-term key holding services", "Orgasm scheduling and denial training", "Daily check-in requirements", "Release task assignments and rewards"] },
+              { title: "🚐 Private Mobile Dungeon", price: "$800 - $2500", features: ["Fully equipped mobile dungeon delivery", "Discreet setup at your location", "Professional BDSM equipment included", "Complete privacy and discretion", "Flexible location arrangements"] },
+              { title: "📱 Custom Content & Media", price: "$25 - $500", features: ["Personalized video messages", "Custom photo sets and galleries", "Audio domination recordings", "Worn clothing and accessory sales", "Special request fulfillment"] },
+              { title: "🎭 Role-Play & Fantasy Sessions", price: "$200 - $600", features: ["Teacher/student power dynamics", "Boss/employee domination scenarios", "Medical examination role-plays", "Age regression and mommy play", "Custom fantasy scenario creation"] },
+              { title: "💉 Medical Play & Examination", price: "$400 - $1200", features: ["Professional medical equipment use", "Intimate examination procedures", "Catheter and sound insertion training", "Medical restraint and positioning", "Clinical humiliation scenarios"] },
+              { title: "🎆 Extreme & Advanced Sessions", price: "$600 - $3000", features: ["Needle play and piercing sessions", "Electro-stimulation training", "Breath play and edge control", "Extreme bondage and suspension", "Advanced pain tolerance building"] },
+              { title: "📅 Subscription & Ongoing Control", price: "$300 - $1500/mo", features: ["24/7 text message domination", "Daily task assignments and check-ins", "Weekly video call sessions", "Lifestyle control and monitoring", "Priority booking and discounts"] }
             ].map((plan, i) => (
               <div key={i} className="pricing-card">
                 <h3>{plan.title}</h3>
@@ -314,8 +392,16 @@ export default function Home() {
               <span>kathtri57@gmail.com</span>
             </div>
             <div className="contact-item">
+              <span className="icon">𝕏</span>
+              <span>X (Twitter): @tshungkatherine</span>
+            </div>
+            <div className="contact-item">
               <span className="icon">📱</span>
               <span>Telegram: @tshungkath10</span>
+            </div>
+            <div className="contact-item">
+              <span className="icon">👻</span>
+              <span>Snapchat: tskathy4subs</span>
             </div>
             <div className="contact-item">
               <span className="icon">🔥</span>
@@ -324,6 +410,55 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      {/* Service Details Modal */}
+      {serviceModal.open && (
+        <div onClick={() => setServiceModal({ open: false, service: '' })} style={{
+          position: 'fixed', top: 0, left: 0, width: '100%', height: '100%',
+          background: 'rgba(0,0,0,0.8)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 10000
+        }}>
+          <div onClick={(e) => e.stopPropagation()} style={{
+            background: 'white', borderRadius: '20px', padding: '40px', maxWidth: '600px', width: '90%',
+            maxHeight: '80vh', overflow: 'auto', position: 'relative'
+          }}>
+            <button onClick={() => setServiceModal({ open: false, service: '' })} style={{
+              position: 'absolute', top: '20px', right: '25px', background: 'none',
+              border: 'none', fontSize: '30px', cursor: 'pointer', color: '#ff1493'
+            }}>×</button>
+            {serviceDetails[serviceModal.service] && (
+              <>
+                <h2 style={{ color: '#ff1493', marginBottom: '20px' }}>
+                  {serviceDetails[serviceModal.service].title}
+                </h2>
+                <p style={{ fontSize: '18px', marginBottom: '30px', fontStyle: 'italic', color: '#666' }}>
+                  {serviceDetails[serviceModal.service].description}
+                </p>
+                <div style={{ background: '#f8f9fa', padding: '30px', borderRadius: '15px', border: '2px solid #ff1493' }}>
+                  <h3 style={{ color: '#ff1493', marginBottom: '20px' }}>What to Expect:</h3>
+                  <ul style={{ listStyle: 'none', padding: 0 }}>
+                    {serviceDetails[serviceModal.service].details.map((detail, i) => (
+                      <li key={i} style={{
+                        padding: '12px 0', borderBottom: '1px solid #eee',
+                        fontSize: '16px', lineHeight: '1.5'
+                      }}>{detail}</li>
+                    ))}
+                  </ul>
+                </div>
+                <div style={{ textAlign: 'center', marginTop: '30px' }}>
+                  <button onClick={() => {
+                    setServiceModal({ open: false, service: '' })
+                    document.getElementById('booking').scrollIntoView({ behavior: 'smooth' })
+                  }} style={{
+                    background: 'linear-gradient(45deg, #ff1493, #ff69b4)', color: 'white',
+                    border: 'none', padding: '15px 30px', borderRadius: '25px',
+                    fontSize: '18px', cursor: 'pointer', fontWeight: 'bold'
+                  }}>Book This Service 💋</button>
+                </div>
+              </>
+            )}
+          </div>
+        </div>
+      )}
 
       {/* Live Chat Widget */}
       {liveChatOpen && (
@@ -451,7 +586,47 @@ export default function Home() {
       {/* Footer */}
       <footer className="footer">
         <div className="container">
-          <p>&copy; 2026 TshungKath Professional Services. All rights reserved.</p>
+          <div className="footer-content">
+            <div className="footer-section">
+              <h3>TshungKath</h3>
+              <p>Professional companion services with complete discretion and satisfaction guaranteed.</p>
+              <div className="social-links">
+                <a href="https://twitter.com/tshungkatherine" target="_blank">𝕏</a>
+                <a href="https://t.me/tshungkath10" target="_blank">📱</a>
+                <a href="https://snapchat.com/add/tskathy4subs" target="_blank">👻</a>
+              </div>
+            </div>
+            <div className="footer-section">
+              <h4>Services</h4>
+              <ul>
+                <li>Online Domination</li>
+                <li>Sissy Training</li>
+                <li>Financial Control</li>
+                <li>Mobile Dungeon</li>
+              </ul>
+            </div>
+            <div className="footer-section">
+              <h4>Contact</h4>
+              <ul>
+                <li>📧 kathtri57@gmail.com</li>
+                <li>📱 Telegram: @tshungkath10</li>
+                <li>🔥 Available 24/7</li>
+              </ul>
+            </div>
+            <div className="footer-section">
+              <h4>Legal</h4>
+              <ul>
+                <li>Privacy Policy</li>
+                <li>Terms of Service</li>
+                <li>18+ Only</li>
+                <li>Discretion Guaranteed</li>
+              </ul>
+            </div>
+          </div>
+          <div className="footer-bottom">
+            <p>&copy; 2026 TshungKath Professional Services. All rights reserved.</p>
+            <p>🔞 Adult content - Must be 18+ to access</p>
+          </div>
         </div>
       </footer>
 
@@ -472,6 +647,18 @@ export default function Home() {
       </div>
 
       <style jsx>{`
+        @keyframes pulse {
+          0%, 100% { transform: scale(1); }
+          50% { transform: scale(1.1); }
+        }
+        @keyframes glow {
+          0% { text-shadow: 0 0 20px #ff1493; }
+          100% { text-shadow: 0 0 30px #ff69b4; }
+        }
+        @keyframes particle {
+          0% { transform: translateY(100vh) rotate(0deg); }
+          100% { transform: translateY(-100vh) rotate(360deg); }
+        }
         @keyframes gradientShift {
           0% { background-position: 0% 50%; }
           50% { background-position: 100% 50%; }
@@ -487,9 +674,10 @@ export default function Home() {
         .logo { color: #ff1493; font-size: 1.8rem; font-weight: bold; margin: 0; }
         .mobile-menu-btn { background: #ff1493; border: none; color: white; padding: 8px 12px; border-radius: 5px; cursor: pointer; }
         .hero { height: 100vh; display: flex; align-items: center; justify-content: center; text-align: center; color: white; background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab); }
-        .hero h1 { font-size: 3rem; margin-bottom: 20px; }
-        .hero p { font-size: 1.2rem; margin-bottom: 30px; max-width: 600px; }
-        .cta-button { display: inline-block; padding: 15px 30px; background: linear-gradient(45deg, #ff1493, #ff69b4); color: white; text-decoration: none; border-radius: 25px; }
+        .hero h1 { font-size: 4rem; margin-bottom: 20px; text-shadow: 3px 3px 6px rgba(0,0,0,0.7); background: linear-gradient(45deg, #ff1493, #ff69b4, #fff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; animation: glow 3s ease-in-out infinite alternate; }
+        .hero p { font-size: 1.4rem; margin-bottom: 30px; text-shadow: 2px 2px 4px rgba(0,0,0,0.7); max-width: 700px; }
+        .cta-button { display: inline-block; padding: 20px 40px; background: linear-gradient(45deg, #ff1493, #ff69b4); color: white; text-decoration: none; border-radius: 30px; font-size: 18px; font-weight: bold; box-shadow: 0 10px 30px rgba(255,20,147,0.4); transition: all 0.3s ease; }
+        .cta-button:hover { transform: translateY(-5px); box-shadow: 0 15px 40px rgba(255,20,147,0.6); }
         .about, .services, .gallery, .testimonials, .pricing, .booking, .dungeon, .contact { padding: 80px 0; }
         .about { background: #f8f9fa; }
         .services { background: white; }
@@ -505,7 +693,11 @@ export default function Home() {
         .about h2, .services h2, .gallery h2, .testimonials h2, .pricing h2, .booking h2 { color: #ff1493; }
         .dungeon h2, .contact h2 { color: #ff1493; }
         .services-grid, .testimonials-grid, .pricing-grid, .dungeon-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px; }
-        .service-card, .testimonial-card, .pricing-card, .dungeon-card { background: white; padding: 30px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); border: 2px solid #ff1493; }
+        .service-card { background: rgba(255,255,255,0.95); padding: 30px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); border: 2px solid transparent; transition: all 0.3s ease; position: relative; overflow: hidden; cursor: pointer; backdrop-filter: blur(10px); }
+        .service-card:hover { border-color: #ff1493; transform: translateY(-10px); box-shadow: 0 20px 40px rgba(255,20,147,0.3); }
+        .service-card .service-overlay { position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: rgba(255,20,147,0.9); color: white; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 18px; opacity: 0; transition: opacity 0.3s ease; }
+        .service-card:hover .service-overlay { opacity: 1; }
+        .testimonial-card, .pricing-card { background: rgba(255,255,255,0.95); padding: 30px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); border: 2px solid #ff1493; backdrop-filter: blur(10px); }
         .dungeon-card { background: rgba(255,255,255,0.1); color: white; }
         .service-card h3, .testimonial-card h3, .pricing-card h3, .dungeon-card h3 { color: #ff1493; margin-bottom: 15px; }
         .dungeon-placeholder { width: 100%; height: 150px; display: flex; align-items: center; justify-content: center; font-size: 4rem; background: rgba(139,0,139,0.3); border-radius: 10px; margin-bottom: 15px; }
@@ -521,8 +713,9 @@ export default function Home() {
         .booking-form { background: white; padding: 40px; border-radius: 15px; max-width: 500px; margin: 0 auto; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
         .booking-form input, .booking-form select { width: 100%; padding: 15px; margin-bottom: 20px; border: 2px solid #e0e0e0; border-radius: 10px; box-sizing: border-box; }
         .booking-form button { width: 100%; padding: 15px; background: linear-gradient(45deg, #ff1493, #ff69b4); color: white; border: none; border-radius: 10px; cursor: pointer; }
-        .contact-item { display: flex; align-items: center; justify-content: center; gap: 15px; margin-bottom: 20px; font-size: 1.2rem; }
-        .contact-item .icon { font-size: 1.5rem; }
+        .contact-item { display: flex; align-items: center; justify-content: center; gap: 15px; margin-bottom: 20px; font-size: 1.2rem; padding: 20px; background: rgba(255,255,255,0.1); border-radius: 15px; border: 2px solid rgba(255,20,147,0.3); transition: all 0.3s ease; backdrop-filter: blur(10px); }
+        .contact-item:hover { background: rgba(255,20,147,0.2); border-color: #ff1493; transform: translateY(-5px) scale(1.02); box-shadow: 0 15px 30px rgba(255,20,147,0.4); }
+        .contact-item .icon { font-size: 2rem; background: linear-gradient(45deg, #ff1493, #ff69b4); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
         .dungeon-rules { background: rgba(139,0,139,0.2); padding: 40px; border-radius: 15px; margin-top: 50px; border: 2px solid #8b008b; }
         .dungeon-rules h3 { color: #ff1493; margin-bottom: 20px; }
         .dungeon-rules ul { list-style: none; padding: 0; }
@@ -530,7 +723,22 @@ export default function Home() {
         .dungeon-rules li:before { content: '⚙️'; margin-right: 10px; }
         .dungeon-gallery { margin-top: 40px; }
         .dungeon-gallery h3 { color: #ff1493; text-align: center; margin-bottom: 30px; font-size: 1.8rem; }
+        .footer { background: linear-gradient(135deg, #1a1a1a, #2d1b2d); color: white; padding: 60px 0 20px; position: relative; }
+        .footer::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: linear-gradient(90deg, #ff1493, #ff69b4, #8b008b); }
+        .footer-content { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 40px; margin-bottom: 40px; }
+        .footer-section h3 { color: #ff1493; font-size: 1.8rem; margin-bottom: 15px; }
+        .footer-section h4 { color: #ff69b4; font-size: 1.2rem; margin-bottom: 15px; }
+        .footer-section p { color: #ccc; line-height: 1.6; }
+        .footer-section ul { list-style: none; padding: 0; }
+        .footer-section li { padding: 5px 0; color: #ccc; }
+        .social-links { display: flex; gap: 15px; margin-top: 15px; }
+        .social-links a { display: inline-block; width: 40px; height: 40px; background: linear-gradient(45deg, #ff1493, #ff69b4); border-radius: 50%; text-align: center; line-height: 40px; color: white; text-decoration: none; transition: transform 0.3s ease; }
+        .social-links a:hover { transform: scale(1.1); }
+        .footer-bottom { border-top: 1px solid rgba(255,20,147,0.3); padding-top: 20px; text-align: center; }
+        .footer-bottom p { margin: 5px 0; color: #999; }
         @media (max-width: 768px) {
+          .footer-content { grid-template-columns: 1fr; gap: 30px; }
+        }
           .hero h1 { font-size: 2rem; }
           .services-grid, .dungeon-grid { grid-template-columns: 1fr; }
         }
