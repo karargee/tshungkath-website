@@ -420,32 +420,32 @@ export default function Home() {
           }}>🏰 My Private Dungeon</h2>
           <div className="dungeon-grid">
             <div className="dungeon-card">
-              <img src="/dungeon/restraint-station.jpg" alt="Restraint Station" className="dungeon-image" />
+              <div className="dungeon-placeholder">⛓️</div>
               <h3>⛓️ Restraint Station</h3>
               <p>Professional bondage equipment including St. Andrew's cross, suspension points, and medical restraints</p>
             </div>
             <div className="dungeon-card">
-              <img src="/dungeon/impact-play.jpg" alt="Impact Play Area" className="dungeon-image" />
+              <div className="dungeon-placeholder">🔥</div>
               <h3>🔥 Impact Play Area</h3>
               <p>Paddles, floggers, whips, and canes for proper discipline and punishment sessions</p>
             </div>
             <div className="dungeon-card">
-              <img src="/dungeon/transformation-chamber.jpg" alt="Transformation Chamber" className="dungeon-image" />
+              <div className="dungeon-placeholder">🎭</div>
               <h3>🎭 Transformation Chamber</h3>
               <p>Full sissy makeover station with makeup, wigs, lingerie, and feminine accessories</p>
             </div>
             <div className="dungeon-card">
-              <img src="/dungeon/chastity-training.jpg" alt="Chastity Training" className="dungeon-image" />
+              <div className="dungeon-placeholder">🔒</div>
               <h3>🔒 Chastity Training</h3>
               <p>Collection of chastity devices and orgasm control equipment for long-term training</p>
             </div>
             <div className="dungeon-card">
-              <img src="/dungeon/worship-throne.jpg" alt="Worship Throne" className="dungeon-image" />
+              <div className="dungeon-placeholder">👠</div>
               <h3>👠 Worship Throne</h3>
               <p>Elevated platform for foot worship, body worship, and submission rituals</p>
             </div>
             <div className="dungeon-card">
-              <img src="/dungeon/roleplay-sets.jpg" alt="Role-Play Sets" className="dungeon-image" />
+              <div className="dungeon-placeholder">🎪</div>
               <h3>🎪 Role-Play Sets</h3>
               <p>Medical examination table, schoolroom setup, and various fantasy scenarios</p>
             </div>
@@ -705,8 +705,8 @@ export default function Home() {
         .dungeon-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px; margin-top: 50px; }
         .dungeon-card { background: rgba(255,255,255,0.1); padding: 30px; border-radius: 15px; border: 2px solid #ff1493; backdrop-filter: blur(10px); position: relative; overflow: hidden; }
         .dungeon-card h3 { color: #ff1493; margin-bottom: 15px; }
-        .dungeon-image { width: 100%; height: 200px; object-fit: cover; border-radius: 10px; margin-bottom: 15px; border: 2px solid #8b008b; }
-        .dungeon-card:hover .dungeon-image { transform: scale(1.05); transition: transform 0.3s ease; }
+        .dungeon-placeholder { width: 100%; height: 200px; display: flex; align-items: center; justify-content: center; font-size: 4rem; background: rgba(139,0,139,0.3); border-radius: 10px; margin-bottom: 15px; border: 2px solid #8b008b; }
+        .dungeon-card:hover .dungeon-placeholder { transform: scale(1.05); transition: transform 0.3s ease; }
         .dungeon-rules { background: rgba(139,0,139,0.2); padding: 40px; border-radius: 15px; margin-top: 50px; border: 2px solid #8b008b; }
         .dungeon-rules h3 { color: #ff1493; margin-bottom: 20px; }
         .dungeon-rules ul { list-style: none; padding: 0; }
