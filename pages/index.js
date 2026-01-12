@@ -1,1386 +1,751 @@
 import Head from 'next/head'
-import { useEffect } from 'react'
+import { useState, useEffect } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
+import { useInView } from 'react-intersection-observer'
+import Link from 'next/link'
+import PaymentGateway from '../components/PaymentGateway'
 
 export default function Home() {
+  const [authModal, setAuthModal] = useState(false)
+  const [currentStep, setCurrentStep] = useState('email')
+  const [user, setUser] = useState(null)
+  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 })
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const [expandedPricing, setExpandedPricing] = useState({})
+  const [lightboxOpen, setLightboxOpen] = useState(false)
+  const [lightboxImage, setLightboxImage] = useState('')
+  const [liveChatOpen, setLiveChatOpen] = useState(false)
+  const [sessionTimerActive, setSessionTimerActive] = useState(false)
+  const [timerSeconds, setTimerSeconds] = useState(0)
+  const [paymentModal, setPaymentModal] = useState({ open: false, service: '', price: '' })
+  const [deferredPrompt, setDeferredPrompt] = useState(null)
+  const [showInstallPrompt, setShowInstallPrompt] = useState(false)
+  const [adminPanelOpen, setAdminPanelOpen] = useState(false)
+  const [serviceModalOpen, setServiceModalOpen] = useState(false)
+  const [currentService, setCurrentService] = useState('')
+  const [notifications, setNotifications] = useState([])
+
   useEffect(() => {
-    // Authentication System
-    window.openAuthModal = function(type) {
-      document.getElementById('authModal').classList.remove('hidden');
-      showEmailStep();
-    };
-    
-    window.closeAuthModal = function() {
-      document.getElementById('authModal').classList.add('hidden');
-      resetAuthModal();
-    };
-    
-    function resetAuthModal() {
-      ['emailStep', 'passwordStep', 'createStep', 'forgotStep', 'verificationForm'].forEach(id => {
-        const element = document.getElementById(id);
-        if (element) element.classList.add('hidden');
-      });
-    }
-    
-    function showEmailStep() {
-      resetAuthModal();
-      document.getElementById('emailStep').classList.remove('hidden');
-    }
-    
-    window.nextToPassword = function() {
-      const email = document.getElementById('authEmail').value;
-      if (!email) {
-        alert('Please enter your email');
-        return;
-      }
-      
-      resetAuthModal();
-      document.getElementById('passwordStep').classList.remove('hidden');
-      document.getElementById('userEmail').textContent = email;
-    };
-    
-    window.backToEmail = function() {
-      showEmailStep();
-    };
-    
-    window.showCreateAccount = function() {
-      resetAuthModal();
-      document.getElementById('createStep').classList.remove('hidden');
-    };
-    
-    window.handleLogin = function() {
-      const email = document.getElementById('authEmail').value;
-      const password = document.getElementById('authPassword').value;
-      
-      if (email === 'kathtri57@gmail.com' && password === 'Karar1234##') {
-        localStorage.setItem('currentUser', JSON.stringify({email: email, role: 'admin'}));
-        closeAuthModal();
-        alert('Admin login successful!');
-        updateAuthButtons(email, 'admin');
-      } else {
-        alert('Invalid credentials');
-      }
-    };
-    
-    window.handleSignup = function() {
-      const name = document.getElementById('signupName').value;
-      const email = document.getElementById('signupEmail').value;
-      const password = document.getElementById('signupPassword').value;
-      
-      if (name && email && password) {
-        localStorage.setItem('currentUser', JSON.stringify({name: name, email: email, role: 'user'}));
-        closeAuthModal();
-        alert('Account created successfully!');
-        updateAuthButtons(email, 'user');
-      }
-    };
-    
-    window.logout = function() {
-      localStorage.removeItem('currentUser');
-      alert('Logged out successfully!');
-      location.reload();
-    };
-    
-    function updateAuthButtons(email, role) {
-      const authButtons = document.querySelector('.auth-buttons');
-      if (authButtons) {
-        authButtons.innerHTML = `
-          <span style="color: white; margin-right: 10px;">Welcome, ${email}</span>
-          <button onclick="logout()" class="login-btn">Logout</button>
-          ${role === 'admin' ? '<button onclick="openAdminPanel()" class="admin-btn">Admin</button>' : ''}
-        `;
-      }
+    const handleBeforeInstallPrompt = (e) => {
+      e.preventDefault()
+      setDeferredPrompt(e)
+      setShowInstallPrompt(true)
     }
 
-    // Admin Panel
-    window.openAdminPanel = function() {
-      document.getElementById('adminPanel').classList.remove('hidden');
-    };
-    
-    window.closeAdminPanel = function() {
-      document.getElementById('adminPanel').classList.add('hidden');
-    };
+    window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt)
+    return () => window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt)
+  }, [])
 
-    // Mobile Menu
-    window.toggleMobileMenu = function() {
-      const nav = document.getElementById('mobileNav');
-      const btn = document.querySelector('.mobile-menu-btn');
-      
-      if (nav) {
-        nav.style.display = nav.style.display === 'block' ? 'none' : 'block';
-        nav.style.position = 'absolute';
-        nav.style.top = '100%';
-        nav.style.left = '0';
-        nav.style.width = '100%';
-        nav.style.background = '#000';
-        nav.style.zIndex = '999';
-        nav.style.border = '1px solid #ff1493';
-        
-        btn.textContent = nav.style.display === 'block' ? '✕' : '☰';
-      }
-    };
+  const toggleMobileMenu = () => {
+    setMobileMenuOpen(!mobileMenuOpen)
+  }
 
-    // Gallery Functions
-    window.openGalleryFolder = function() {
-      if (confirm('🔞 Age Verification Required\\n\\nYou must be 18+ to view this content.\\n\\nClick OK if you are 18+')) {
-        document.getElementById('galleryContent').classList.remove('hidden');
-      }
-    };
+  const [heroRef, heroInView] = useInView({ threshold: 0.3 })
+  const [aboutRef, aboutInView] = useInView({ threshold: 0.3 })
+  const [servicesRef, servicesInView] = useInView({ threshold: 0.3 })
 
-    window.openLightbox = function(imageSrc) {
-      const lightbox = document.getElementById('lightbox');
-      const lightboxImg = document.getElementById('lightbox-img');
-      
-      if (lightbox && lightboxImg) {
-        lightboxImg.src = imageSrc;
-        lightbox.style.display = 'flex';
-      }
-    };
+  useEffect(() => {
+    const savedUser = localStorage.getItem('currentUser')
+    if (savedUser) setUser(JSON.parse(savedUser))
 
-    window.openVideoLightbox = function(videoSrc) {
-      const lightbox = document.getElementById('lightbox');
-      const lightboxImg = document.getElementById('lightbox-img');
-      const lightboxVideo = document.getElementById('lightbox-video');
-      
-      if (lightbox && lightboxVideo) {
-        lightboxVideo.src = videoSrc;
-        lightboxVideo.style.display = 'block';
-        lightboxImg.style.display = 'none';
-        lightbox.style.display = 'flex';
-      }
-    };
-
-    window.closeLightbox = function() {
-      const lightbox = document.getElementById('lightbox');
-      const lightboxVideo = document.getElementById('lightbox-video');
-      if (lightbox) {
-        lightbox.style.display = 'none';
-        if (lightboxVideo) {
-          lightboxVideo.pause();
-          lightboxVideo.src = '';
-        }
-      }
-    };
-
-    // Service Details Functions
-    window.openServiceDetails = function(serviceType) {
-      document.getElementById('serviceModal').classList.remove('hidden');
-      const content = document.getElementById('serviceModalContent');
-      
-      const serviceDetails = {
-        online: {
-          title: '💻 Online Sessions - Virtual Domination',
-          content: `
-            <div class="service-detail-section">
-              <h4>🎥 Premium Virtual Experiences</h4>
-              <p>Indulge in personalized online sessions where I take complete control through your screen. Each session is tailored to your deepest desires and limits.</p>
-              
-              <div class="service-features">
-                <h5>Session Types Available:</h5>
-                <ul>
-                  <li><strong>Sissy Training Sessions</strong> - Transform into the perfect sissy under my guidance</li>
-                  <li><strong>JOI & CEI Sessions</strong> - Follow my explicit instructions for ultimate pleasure</li>
-                  <li><strong>Humiliation & Degradation</strong> - Experience psychological domination</li>
-                  <li><strong>Findom Sessions</strong> - Financial submission and tribute training</li>
-                  <li><strong>Chastity Training</strong> - Learn denial and control under my supervision</li>
-                  <li><strong>Roleplay Scenarios</strong> - Custom fantasies brought to life</li>
-                </ul>
-              </div>
-              
-              <div class="pricing-breakdown">
-                <h5>💰 Professional Session Rates:</h5>
-                <div class="rate-item">30 Minutes - $150 <span class="rate-desc">Quick training & instruction sessions</span></div>
-                <div class="rate-item">60 Minutes - $250 <span class="rate-desc">Full domination experience with tasks</span></div>
-                <div class="rate-item">90 Minutes - $350 <span class="rate-desc">Extended training with multiple activities</span></div>
-                <div class="rate-item">2 Hours - $450 <span class="rate-desc">Complete transformation session</span></div>
-                <div class="rate-item">Custom Kink Sessions - $500+ <span class="rate-desc">Specialized fetishes & extreme play</span></div>
-                <div class="rate-item">Couples Training - $600 <span class="rate-desc">90min session for couples/partners</span></div>
-                <div class="rate-item">Group Sessions - $800 <span class="rate-desc">Multiple subs (max 3 people)</span></div>
-              </div>
-              
-              <div class="activity-breakdown">
-                <h5>🎯 Session Activities & Services:</h5>
-                <div class="activity-category">
-                  <h6>Domination & Control ($150-350)</h6>
-                  <ul>
-                    <li>Verbal humiliation & degradation</li>
-                    <li>Task assignment & completion monitoring</li>
-                    <li>Punishment protocols & discipline</li>
-                    <li>Orgasm control & denial training</li>
-                    <li>Behavioral modification sessions</li>
-                  </ul>
-                </div>
-                <div class="activity-category">
-                  <h6>Fetish & Kink Exploration ($250-500)</h6>
-                  <ul>
-                    <li>Foot worship & shoe fetish sessions</li>
-                    <li>Latex, leather & material fetishes</li>
-                    <li>Smoking fetish & cigarette domination</li>
-                    <li>Spit play & bodily worship</li>
-                    <li>Financial domination & tribute training</li>
-                    <li>Blackmail fantasy & exposure play</li>
-                  </ul>
-                </div>
-                <div class="activity-category">
-                  <h6>Advanced Training ($350-600)</h6>
-                  <ul>
-                    <li>Anal training & toy instruction</li>
-                    <li>Chastity device fitting & training</li>
-                    <li>Crossdressing guidance & feminization</li>
-                    <li>Cuckolding scenarios & roleplay</li>
-                    <li>BDSM technique instruction</li>
-                    <li>Slave contract negotiation</li>
-                  </ul>
-                </div>
-              </div>
-              
-              <div class="session-requirements">
-                <h5>📋 What You Need:</h5>
-                <ul>
-                  <li>Stable internet connection & HD webcam</li>
-                  <li>Private space for 1-2 hours</li>
-                  <li>Payment completed 24hrs before session</li>
-                  <li>Completed limits & interests form</li>
-                </ul>
-              </div>
-            </div>
-          `
-        },
-        sissy: {
-          title: '👗 Sissy Training Programs - Complete Feminization',
-          content: `
-            <div class="service-detail-section">
-              <h4>🎭 Professional Sissy Transformation</h4>
-              <p>Comprehensive feminization training programs designed to transform you into the perfect sissy. From beginner to advanced levels.</p>
-              
-              <div class="service-features">
-                <h5>Training Modules:</h5>
-                <ul>
-                  <li><strong>Makeup & Beauty Training</strong> - Learn feminine makeup techniques</li>
-                  <li><strong>Voice Feminization</strong> - Develop your feminine voice and mannerisms</li>
-                  <li><strong>Wardrobe Selection</strong> - Build the perfect sissy wardrobe</li>
-                  <li><strong>Posture & Movement</strong> - Walk, sit, and move like a lady</li>
-                  <li><strong>Behavioral Training</strong> - Feminine etiquette and submission</li>
-                  <li><strong>Sexual Training</strong> - Learn to please like a proper sissy</li>
-                </ul>
-              </div>
-              
-              <div class="pricing-breakdown">
-                <h5>💰 Professional Training Rates:</h5>
-                <div class="rate-item">Sissy Basics - $300 <span class="rate-desc">Single 2-hour introduction session</span></div>
-                <div class="rate-item">Intermediate Training - $600 <span class="rate-desc">2 sessions focusing on specific skills</span></div>
-                <div class="rate-item">Advanced Program - $900 <span class="rate-desc">3 sessions over 2 weeks with homework</span></div>
-                <div class="rate-item">Complete Transformation - $1500 <span class="rate-desc">6 sessions + 30 days ongoing support</span></div>
-                <div class="rate-item">VIP Sissy Package - $2000 <span class="rate-desc">8 sessions + wardrobe consultation</span></div>
-                <div class="rate-item">Maintenance Sessions - $200 <span class="rate-desc">Monthly check-ins for graduates</span></div>
-              </div>
-              
-              <div class="activity-breakdown">
-                <h5>🎯 Training Activities & Curriculum:</h5>
-                <div class="activity-category">
-                  <h6>Foundation Level ($300-600)</h6>
-                  <ul>
-                    <li>Basic makeup application & skincare routine</li>
-                    <li>Feminine posture & walking techniques</li>
-                    <li>Voice training & speech patterns</li>
-                    <li>Basic wardrobe selection & styling</li>
-                    <li>Nail care & feminine grooming</li>
-                    <li>Underwear fitting & lingerie selection</li>
-                  </ul>
-                </div>
-                <div class="activity-category">
-                  <h6>Intermediate Skills ($600-900)</h6>
-                  <ul>
-                    <li>Advanced makeup techniques & contouring</li>
-                    <li>Hair styling & wig maintenance</li>
-                    <li>Feminine mannerisms & body language</li>
-                    <li>Social etiquette & conversation skills</li>
-                    <li>Outfit coordination & fashion sense</li>
-                    <li>Confidence building exercises</li>
-                  </ul>
-                </div>
-                <div class="activity-category">
-                  <h6>Advanced Transformation ($900-2000)</h6>
-                  <ul>
-                    <li>Professional photo shoots & portfolio</li>
-                    <li>Public appearance training & practice</li>
-                    <li>Sexual technique & pleasure training</li>
-                    <li>Submission protocols & service training</li>
-                    <li>Lifestyle integration & daily routines</li>
-                    <li>Relationship dynamics & dating prep</li>
-                  </ul>
-                </div>
-              </div>
-              
-              <div class="rate-item">Maintenance Sessions - $200 <span class="rate-desc">Monthly check-ins</span></div>
-              </div>
-              
-              <div class="session-requirements">
-                <h5>📋 Program Includes:</h5>
-                <ul>
-                  <li>Personalized training curriculum</li>
-                  <li>Daily tasks and assignments</li>
-                  <li>Progress tracking and assessments</li>
-                  <li>24/7 text support during program</li>
-                  <li>Certificate of completion</li>
-                </ul>
-              </div>
-            </div>
-          `
-        },
-        inperson: {
-          title: '🏛️ In-Person Sessions - Real Domination',
-          content: `
-            <div class="service-detail-section">
-              <h4>👑 Elite In-Person Experiences</h4>
-              <p>Exclusive face-to-face sessions for the ultimate in professional domination. Discretion and safety guaranteed.</p>
-              
-              <div class="service-features">
-                <h5>Session Types:</h5>
-                <ul>
-                  <li><strong>Luxury Hotel Sessions</strong> - Upscale venues for premium experiences</li>
-                  <li><strong>Dungeon Play</strong> - Fully equipped BDSM dungeon sessions</li>
-                  <li><strong>Sissy Makeovers</strong> - Complete transformation in person</li>
-                  <li><strong>Worship Sessions</strong> - Body worship and foot fetish</li>
-                  <li><strong>Discipline Training</strong> - Real-time correction and training</li>
-                  <li><strong>Couples Sessions</strong> - Dominate you and your partner</li>
-                </ul>
-              </div>
-              
-              <div class="pricing-breakdown">
-                <h5>💰 Professional In-Person Rates:</h5>
-                <div class="rate-item">2 Hours - $700 <span class="rate-desc">Minimum booking time for all sessions</span></div>
-                <div class="rate-item">3 Hours - $950 <span class="rate-desc">Extended domination experience</span></div>
-                <div class="rate-item">4 Hours - $1200 <span class="rate-desc">Intensive training session</span></div>
-                <div class="rate-item">6 Hours - $1700 <span class="rate-desc">Half-day intensive experience</span></div>
-                <div class="rate-item">Overnight (12hrs) - $2500 <span class="rate-desc">Complete overnight domination</span></div>
-                <div class="rate-item">Weekend Package - $5000 <span class="rate-desc">48-hour transformation weekend</span></div>
-                <div class="rate-item">Travel Sessions - $1000+ <span class="rate-desc">Plus travel expenses & accommodation</span></div>
-              </div>
-              
-              <div class="activity-breakdown">
-                <h5>🎯 In-Person Activities & Services:</h5>
-                <div class="activity-category">
-                  <h6>Luxury Hotel Sessions ($700-1200)</h6>
-                  <ul>
-                    <li>Professional domination in 5-star hotels</li>
-                    <li>Sissy makeover & transformation</li>
-                    <li>Foot worship & body worship sessions</li>
-                    <li>Roleplay scenarios & fantasy fulfillment</li>
-                    <li>Discipline training & behavioral correction</li>
-                    <li>Intimate domination & control exercises</li>
-                  </ul>
-                </div>
-                <div class="activity-category">
-                  <h6>Extended Sessions ($1200-2500)</h6>
-                  <ul>
-                    <li>Complete sissy transformation with shopping</li>
-                    <li>Public humiliation & exposure training</li>
-                    <li>Advanced BDSM techniques & equipment use</li>
-                    <li>Psychological domination & mind control</li>
-                    <li>Chastity training & orgasm control</li>
-                    <li>Slave training & service protocols</li>
-                  </ul>
-                </div>
-                <div class="activity-category">
-                  <h6>VIP Experiences ($2500-5000)</h6>
-                  <ul>
-                    <li>Overnight domination & control</li>
-                    <li>Weekend transformation retreats</li>
-                    <li>Multiple session combinations</li>
-                    <li>Custom fetish exploration</li>
-                    <li>Professional photography sessions</li>
-                    <li>Lifestyle training & integration</li>
-                  </ul>
-                </div>
-              </div>
-              
-              <div class="session-requirements">
-                <h5>📋 Booking Requirements:</h5>
-                <ul>
-                  <li>48-hour advance booking minimum</li>
-                  <li>50% deposit required to secure date</li>
-                  <li>Valid ID and screening process</li>
-                  <li>Travel expenses covered by client</li>
-                  <li>Luxury venue costs additional</li>
-                </ul>
-              </div>
-            </div>
-          `
-        },
-        dungeon: {
-          title: '🏰 Dungeon Play Sessions - BDSM Paradise',
-          content: `
-            <div class="service-detail-section">
-              <h4>⛓️ Professional BDSM Dungeon</h4>
-              <p>Fully equipped dungeon space for serious BDSM play. All equipment sanitized and safety protocols followed.</p>
-              
-              <div class="service-features">
-                <h5>Available Equipment & Activities:</h5>
-                <ul>
-                  <li><strong>Bondage Equipment</strong> - Restraints, chains, suspension gear</li>
-                  <li><strong>Impact Play</strong> - Whips, floggers, paddles, canes</li>
-                  <li><strong>Sensory Play</strong> - Blindfolds, gags, nipple clamps</li>
-                  <li><strong>Electrical Play</strong> - Violet wands, TENS units</li>
-                  <li><strong>Medical Play</strong> - Sounds, speculums, enemas</li>
-                  <li><strong>Humiliation Scenes</strong> - Verbal and physical degradation</li>
-                </ul>
-              </div>
-              
-              <div class="pricing-breakdown">
-                <h5>💰 Professional Dungeon Rates:</h5>
-                <div class="rate-item">Light BDSM (2hrs) - $800 <span class="rate-desc">Beginner-friendly introduction</span></div>
-                <div class="rate-item">Moderate Session (3hrs) - $1100 <span class="rate-desc">Intermediate level play</span></div>
-                <div class="rate-item">Intense Session (3hrs) - $1400 <span class="rate-desc">Advanced practitioners only</span></div>
-                <div class="rate-item">Extreme Play (4hrs) - $1800 <span class="rate-desc">Heavy BDSM & advanced kinks</span></div>
-                <div class="rate-item">Custom Scenes (4hrs) - $2200 <span class="rate-desc">Specialized fetishes & roleplay</span></div>
-                <div class="rate-item">Couples Dungeon - $1600 <span class="rate-desc">3-hour session for two people</span></div>
-                <div class="rate-item">Group Sessions - $2500+ <span class="rate-desc">Multiple participants (max 4)</span></div>
-              </div>
-              
-              <div class="activity-breakdown">
-                <h5>🎯 Dungeon Activities & Equipment:</h5>
-                <div class="activity-category">
-                  <h6>Beginner Level ($800-1100)</h6>
-                  <ul>
-                    <li>Basic bondage & restraint training</li>
-                    <li>Light impact play with paddles & floggers</li>
-                    <li>Sensory deprivation & blindfolding</li>
-                    <li>Temperature play with ice & wax</li>
-                    <li>Basic discipline & obedience training</li>
-                    <li>Safe word establishment & communication</li>
-                  </ul>
-                </div>
-                <div class="activity-category">
-                  <h6>Intermediate Level ($1100-1400)</h6>
-                  <ul>
-                    <li>Advanced rope bondage & shibari</li>
-                    <li>Moderate impact play with whips & canes</li>
-                    <li>Electrical stimulation & violet wands</li>
-                    <li>Nipple & genital torture techniques</li>
-                    <li>Psychological domination & mind games</li>
-                    <li>Chastity device training & control</li>
-                  </ul>
-                </div>
-                <div class="activity-category">
-                  <h6>Advanced/Extreme Level ($1400-2500)</h6>
-                  <ul>
-                    <li>Suspension bondage & aerial play</li>
-                    <li>Heavy impact play & pain processing</li>
-                    <li>Medical play & clinical scenarios</li>
-                    <li>Breath play & edge play techniques</li>
-                    <li>Extreme humiliation & degradation</li>
-                    <li>Multi-hour endurance sessions</li>
-                  </ul>
-                </div>
-              </div>
-              
-              <div class="session-requirements">
-                <h5>📋 Safety & Requirements:</h5>
-                <ul>
-                  <li>Detailed negotiation before session</li>
-                  <li>Safe words and signals established</li>
-                  <li>Medical history disclosure required</li>
-                  <li>Aftercare included in all sessions</li>
-                  <li>Professional dungeon insurance</li>
-                </ul>
-              </div>
-            </div>
-          `
-        }
-      };
-      
-      const service = serviceDetails[serviceType];
-      if (service) {
-        content.innerHTML = `
-          <h3>${service.title}</h3>
-          ${service.content}
-          <div class="booking-actions">
-            <button onclick="window.location.href='mailto:kathtri57@gmail.com?subject=Booking: ${service.title}'" class="book-now-btn">📧 Book This Service</button>
-            <button onclick="window.openPayPalPayment(300)" class="payment-btn">💰 Pay Deposit</button>
-          </div>
-        `;
-      }
-    };
-    
-    window.closeServiceModal = function() {
-      document.getElementById('serviceModal').classList.add('hidden');
-    };
-
-    // Pricing Functions
-    window.togglePricing = function(serviceId) {
-      const details = document.getElementById(serviceId);
-      if (!details) return;
-      
-      const card = details.closest('.pricing-card');
-      const icon = card ? card.querySelector('.expand-icon') : null;
-      
-      if (details.classList.contains('hidden')) {
-        details.classList.remove('hidden');
-        if (card) card.classList.add('expanded');
-        if (icon) icon.textContent = '−';
-      } else {
-        details.classList.add('hidden');
-        if (card) card.classList.remove('expanded');
-        if (icon) icon.textContent = '+';
-      }
-    };
-
-    // Payment Functions
-    window.openPayPalPayment = function(amount) {
-      document.getElementById('paypalAmount').textContent = '$' + amount;
-      document.getElementById('paypalModal').classList.remove('hidden');
-    };
-
-    window.closePaypalModal = function() {
-      document.getElementById('paypalModal').classList.add('hidden');
-    };
-
-    window.openBitcoinPayment = function(amount) {
-      document.getElementById('bitcoinAmount').textContent = '$' + amount;
-      document.getElementById('bitcoinModal').classList.remove('hidden');
-    };
-
-    window.closeBitcoinModal = function() {
-      document.getElementById('bitcoinModal').classList.add('hidden');
-    };
-
-    window.copyPaypalEmail = function() {
-      navigator.clipboard.writeText('kathtri57@gmail.com').then(() => {
-        alert('PayPal email copied!');
-      });
-    };
-
-    window.copyBitcoinAddress = function() {
-      navigator.clipboard.writeText('bc1q77mna3wnsvfuts4jksua6609l2fzych6vkgejs').then(() => {
-        alert('Bitcoin address copied!');
-      });
-    };
-
-    // Form Handlers
-    window.handleContactForm = function(event) {
-      event.preventDefault();
-      const name = document.getElementById('contactName').value;
-      const email = document.getElementById('contactEmail').value;
-      const message = document.getElementById('contactMessage').value;
-      const inquiry = document.getElementById('inquiryType').value;
-      
-      const subject = `Contact Form - ${inquiry}`;
-      const body = `Name: ${name}\\nEmail: ${email}\\nInquiry Type: ${inquiry}\\nMessage: ${message}`;
-      
-      window.location.href = `mailto:kathtri57@gmail.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-    };
-
-    window.handleBooking = function(event) {
-      event.preventDefault();
-      const service = document.getElementById('serviceType').value;
-      const date = document.getElementById('bookingDate').value;
-      const name = document.getElementById('clientName').value;
-      const email = document.getElementById('clientEmail').value;
-      
-      const subject = 'Session Booking Request';
-      const body = `Service: ${service}\\nDate: ${date}\\nName: ${name}\\nEmail: ${email}`;
-      
-      window.location.href = `mailto:kathtri57@gmail.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-    };
-
-    // Scroll Functions
-    window.scrollToTop = function() {
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    };
-
-    window.addEventListener('scroll', function() {
-      const scrollBtn = document.getElementById('scrollTop');
-      if (scrollBtn) {
-        if (window.pageYOffset > 300) {
-          scrollBtn.classList.add('show');
-        } else {
-          scrollBtn.classList.remove('show');
-        }
-      }
-    });
-
-    // Check login status
-    const user = JSON.parse(localStorage.getItem('currentUser') || 'null');
-    if (user && user.email) {
-      updateAuthButtons(user.email, user.role || 'user');
+    if (window.emailjs) {
+      window.emailjs.init('hNbP0fS3-WwUuqUyE')
     }
 
-    // Add motion effects
-    const observerOptions = {
-      threshold: 0.1,
-      rootMargin: '0px 0px -50px 0px'
-    };
+    if (window.gtag) {
+      window.gtag('config', 'G-XXXXXXXXXX', {
+        page_title: 'Homepage',
+        page_location: window.location.href
+      })
+    }
 
-    const observer = new IntersectionObserver((entries) => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          entry.target.classList.add('animate-in');
-        }
-      });
-    }, observerOptions);
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/sw.js')
+        .then(registration => {
+          console.log('SW registered:', registration)
+          
+          if ('Notification' in window && Notification.permission === 'default') {
+            Notification.requestPermission().then(permission => {
+              if (permission === 'granted') {
+                console.log('Notification permission granted')
+              }
+            })
+          }
+        })
+        .catch(error => console.error('SW registration failed:', error))
+    }
 
-    document.querySelectorAll('.animate-on-scroll').forEach(el => {
-      observer.observe(el);
-    });
-  }, []);
+    const handleMouseMove = (e) => {
+      setMousePosition({ x: e.clientX, y: e.clientY })
+    }
+    window.addEventListener('mousemove', handleMouseMove)
+    return () => window.removeEventListener('mousemove', handleMouseMove)
+  }, [])
+
+  const handleInstallPWA = async () => {
+    if (deferredPrompt) {
+      deferredPrompt.prompt()
+      const { outcome } = await deferredPrompt.userChoice
+      
+      if (outcome === 'accepted' && window.gtag) {
+        window.gtag('event', 'pwa_installed', { event_category: 'engagement' })
+      }
+      
+      setDeferredPrompt(null)
+      setShowInstallPrompt(false)
+    }
+  }
+
+  const handleLogin = (email, password) => {
+    const verifiedUsers = JSON.parse(localStorage.getItem('verifiedUsers') || '{}')
+    const user = verifiedUsers[email]
+    
+    if (user && user.password === password) {
+      localStorage.setItem('currentUser', JSON.stringify(user))
+      setUser(user)
+      setAuthModal(false)
+    } else {
+      alert('Invalid credentials')
+    }
+  }
+
+  const openLightbox = (imageSrc) => {
+    setLightboxImage(imageSrc)
+    setLightboxOpen(true)
+  }
+
+  const closeLightbox = () => {
+    setLightboxOpen(false)
+    setLightboxImage('')
+  }
+
+  const startSessionTimer = () => {
+    setSessionTimerActive(true)
+    setTimerSeconds(0)
+  }
+
+  const endSession = () => {
+    setSessionTimerActive(false)
+    setTimerSeconds(0)
+  }
+
+  useEffect(() => {
+    let interval = null
+    if (sessionTimerActive) {
+      interval = setInterval(() => {
+        setTimerSeconds(seconds => seconds + 1)
+      }, 1000)
+    } else if (!sessionTimerActive && timerSeconds !== 0) {
+      clearInterval(interval)
+    }
+    return () => clearInterval(interval)
+  }, [sessionTimerActive, timerSeconds])
+
+  const formatTime = (seconds) => {
+    const hrs = Math.floor(seconds / 3600)
+    const mins = Math.floor((seconds % 3600) / 60)
+    const secs = seconds % 60
+    return `${hrs.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`
+  }
+
+  const handlePayment = (method, service, price) => {
+    if (window.gtag) {
+      window.gtag('event', 'booking_initiated', {
+        event_category: 'booking',
+        event_label: service,
+        value: parseFloat(price.replace(/[^0-9.-]/g, ''))
+      })
+    }
+    setPaymentModal({ open: true, service, price })
+  }
+
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: { staggerChildren: 0.1 }
+    }
+  }
+
+  const itemVariants = {
+    hidden: { y: 20, opacity: 0 },
+    visible: {
+      y: 0,
+      opacity: 1,
+      transition: { duration: 0.6, ease: "easeOut" }
+    }
+  }
+
+  const addNotification = (message) => {
+    const id = Date.now()
+    setNotifications(prev => [...prev, { id, message }])
+    setTimeout(() => {
+      setNotifications(prev => prev.filter(n => n.id !== id))
+    }, 5000)
+  }
 
   return (
     <>
       <Head>
-        <title>Kathy - Your Kinky Trans Dominatrix & Sissy Trainer</title>
-        <meta name="description" content="Kinky trans mistress specializing in BDSM, sissy training, and domination sessions" />
-        <meta name="keywords" content="kinky mistress, BDSM domination, sissy training, trans dominatrix, dungeon sessions, kinky escort" />
-        <meta name="robots" content="index, follow" />
-        <meta property="og:title" content="TshungKath - Kinky Trans Mistress & BDSM Domination" />
-        <meta property="og:description" content="Kinky trans mistress specializing in BDSM, sissy training, and domination sessions" />
-        <meta property="og:type" content="website" />
-        <meta property="og:url" content="https://tshungkath.com" />
-        <link rel="canonical" href="https://tshungkath.com" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <meta name="theme-color" content="#ff1493" />
+        <title>TshungKath - Professional Companion Services</title>
+        <meta name="description" content="Professional personal companion and social services" />
+        <link rel="stylesheet" href="/styles.css" />
+        <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+        <script src="https://js.stripe.com/v3/"></script>
+        <script src="https://www.paypal.com/sdk/js?client-id=YOUR_PAYPAL_CLIENT_ID&currency=USD"></script>
+        <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
+        <script src="/analytics.js"></script>
       </Head>
 
-      <div className="social-top">
-        <div className="container">
-          <div className="social-links">
-            <a href="https://twitter.com/tshungkatherine" target="_blank" rel="noopener noreferrer">🐦</a>
-            <a href="https://snapchat.com/add/tshungkathy25" target="_blank" rel="noopener noreferrer">👻</a>
-            <a href="https://telegram.me/tshungkath10" target="_blank" rel="noopener noreferrer">📱</a>
-          </div>
+      {/* Mobile Menu */}
+      {mobileMenuOpen && (
+        <div style={{
+          position: 'fixed', top: '70px', right: '20px', width: '200px',
+          background: '#fff', border: '1px solid #ddd', borderRadius: '8px',
+          zIndex: 50000, boxShadow: '0 4px 12px rgba(0,0,0,0.15)'
+        }}>
+          <ul style={{ listStyle: 'none', margin: 0, padding: 0 }}>
+            {['🏠 Home', '👤 About', '💼 Services', '💰 Pricing', '📅 Book Now', '📞 Contact'].map((item, i) => (
+              <li key={i}><a href={['#home','#about','#services','#pricing','#booking','#contact'][i]} onClick={toggleMobileMenu} style={{
+                display: 'block', padding: '12px 16px', color: '#333', textDecoration: 'none',
+                borderBottom: '1px solid #eee', fontSize: '14px'
+              }}>{item}</a></li>
+            ))}
+          </ul>
         </div>
-      </div>
+      )}
 
-      <nav className="navbar">
+      {/* Background */}
+      <div style={{
+        position: 'fixed', top: 0, left: 0, width: '100%', height: '100%',
+        background: 'linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab)',
+        backgroundSize: '400% 400%', animation: 'gradientShift 15s ease infinite', zIndex: -1
+      }} />
+
+      {/* Navigation */}
+      <motion.nav className="navbar" initial={{ y: -100 }} animate={{ y: 0 }} transition={{ duration: 0.8 }}>
         <div className="nav-container">
           <div className="left-section">
             <h1 className="logo">TshungKath</h1>
-            <button className="mobile-menu-btn" onClick={() => window.toggleMobileMenu()}>☰</button>
+            <button className="mobile-menu-btn" onClick={toggleMobileMenu} style={{
+              background: '#ff1493', border: 'none', color: 'white', fontSize: '18px',
+              padding: '8px 12px', borderRadius: '5px', cursor: 'pointer', marginLeft: '15px'
+            }}>
+              {mobileMenuOpen ? '✕' : '☰'}
+            </button>
           </div>
           <div className="auth-buttons">
-            <button onClick={() => window.openAuthModal('login')} className="login-btn">👤 Login</button>
-          </div>
-          <div className="nav-wrapper" id="mobileNav">
-            <ul className="nav-menu">
-              <li><a href="#home">Home</a></li>
-              <li><a href="#about">About</a></li>
-              <li><a href="#services">Services</a></li>
-              <li><a href="#gallery">Gallery</a></li>
-              <li><a href="#services">🏰 Dungeon</a></li>
-              <li><a href="#booking">Book Now</a></li>
-              <li><a href="#pricing">Pricing</a></li>
-              <li><a href="#testimonials">Reviews</a></li>
-              <li><a href="#contact">Contact</a></li>
-            </ul>
+            {user ? (
+              <span style={{color: 'white'}}>Welcome, {user.name || user.email}</span>
+            ) : (
+              <button onClick={() => setAuthModal(true)} style={{
+                background: '#ff1493', border: 'none', color: 'white', fontSize: '18px',
+                padding: '8px 12px', borderRadius: '5px', cursor: 'pointer'
+              }}>👤</button>
+            )}
           </div>
         </div>
-      </nav>
+      </motion.nav>
 
-      <section id="home" className="hero animate-on-scroll">
+      {/* Hero Section */}
+      <section id="home" className="hero">
         <div className="hero-content">
-          <h1 className="main-title">TshungKath</h1>
-          <p id="hero-text">just imagine meeting with the most elegant,dominant,hung trans..</p>
-          <a href="#contact" className="cta-button">Get In Touch</a>
+          <motion.h1 className="main-title" initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ duration: 1, delay: 0.5 }}>TshungKath</motion.h1>
+          <motion.p initial={{ y: 50, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ duration: 0.8, delay: 0.8 }}>
+            🔥 Dominant trans mistress ready to explore your deepest fantasies and push your limits. Submit to my control and experience true pleasure through pain and obedience. 💋
+          </motion.p>
+          <motion.a href="#contact" className="cta-button" initial={{ y: 50, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ duration: 0.8, delay: 1 }}>
+            Get In Touch
+          </motion.a>
         </div>
       </section>
 
-      <section id="about" className="about animate-on-scroll">
+      {/* About Section */}
+      <section id="about" className="about">
         <div className="container">
           <h2>About Me</h2>
           <div className="about-content">
             <div className="about-text">
-              <p>Hello! I'm Kathy, a professional mistress, providing exceptional experience to kinky, dedicated sluts and subs helping them explore all their kinks and limits... im also a vers trans and can be all kinky and slutty for the right person... you can be the lucky one.</p>
-              <ul>
-                <li>Professional and discreet</li>
-                <li>kinky with no limits</li>
-                <li>experienced in sissy training</li>
-              </ul>
+              <p>Hello! I'm Kathy, your kinky trans mistress specializing in domination and submission experiences.</p>
             </div>
           </div>
         </div>
       </section>
 
-      <section id="services" className="services animate-on-scroll">
+      {/* Services Section */}
+      <section id="services" className="services">
         <div className="container">
           <h2 className="premium-title">Premium Services</h2>
           <div className="services-grid">
-            <div className="service-card" onClick={() => window.openServiceDetails('online')}>
-              <div className="service-icon">💻</div>
-              <h3>Online Sessions</h3>
-              <p>Providing you with the most intimate and kinky virtual experience</p>
-              <div className="service-preview">Click for detailed information & booking</div>
-            </div>
-            <div className="service-card" onClick={() => window.openServiceDetails('sissy')}>
-              <div className="service-icon">👗</div>
-              <h3>Sissy Training Programs</h3>
-              <p>Complete feminization and sissy transformation programs</p>
-              <div className="service-preview">Click for detailed information & booking</div>
-            </div>
-            <div className="service-card" onClick={() => window.openServiceDetails('inperson')}>
-              <div className="service-icon">🏛️</div>
-              <h3>In-Person Sessions</h3>
-              <p>Discreet luxury meetings for ultimate domination experiences</p>
-              <div className="service-preview">Click for detailed information & booking</div>
-            </div>
-            <div className="service-card" onClick={() => window.openServiceDetails('dungeon')}>
-              <div className="service-icon">🏰</div>
-              <h3>Dungeon Play Sessions</h3>
-              <p>Professional BDSM dungeon with full equipment and safety protocols</p>
-              <div className="service-preview">Click for detailed information & booking</div>
-            </div>
+            {[
+              { title: "🔥 Online Domination", desc: "Intense cam sessions where I control every move you make", link: "/online-training" },
+              { title: "👗 Sissy Transformation", desc: "Turn you into my perfect little slut through complete feminization", link: "/premium-packages" },
+              { title: "⛓️ BDSM Sessions", desc: "Real domination with toys, restraints, and punishment", link: "/in-person-sessions" },
+              { title: "👠 Foot Worship", desc: "Worship my perfect feet like the pathetic sub you are", link: "/premium-packages" },
+              { title: "🔒 Chastity Training", desc: "Lock you up and control your orgasms completely", link: "/online-training" },
+              { title: "💰 Financial Domination", desc: "Drain your wallet while you beg for more abuse", link: "/premium-packages" }
+            ].map((service, i) => (
+              <Link key={i} href={service.link}>
+                <div className="service-card">
+                  <h3>{service.title}</h3>
+                  <p>{service.desc}</p>
+                </div>
+              </Link>
+            ))}
           </div>
         </div>
       </section>
 
-      <section id="gallery" className="gallery animate-on-scroll">
+      {/* Gallery */}
+      <section id="gallery" className="gallery">
         <div className="container">
           <h2>Gallery</h2>
-          <div className="gallery-folder" onClick={() => window.openGalleryFolder()}>
+          <div className="gallery-folder" onClick={() => {
+            if (confirm('🔞 Age Verification Required\\n\\nYou must be 18+ to view this content.')) {
+              document.getElementById('galleryContent').style.display = 'block'
+            }
+          }}>
             <div className="folder-icon">📁</div>
             <h3>Private Gallery</h3>
-            <p>15 items - 🔞 18+ Content Only</p>
-            <div className="folder-lock">🔒</div>
+            <p>11 items - 🔞 18+ Content Only</p>
           </div>
-          
-          <div className="gallery-content hidden" id="galleryContent">
+          <div id="galleryContent" style={{ display: 'none' }}>
             <div className="gallery-grid">
-              <div className="gallery-item" onClick={() => window.openLightbox('/20250811_080612.jpg')}>
-                <img src="/20250811_080612.jpg" alt="Gallery Image" loading="lazy" />
-                <div className="media-type">📷</div>
-              </div>
-              <div className="gallery-item" onClick={() => window.openLightbox('/20250818_053853.jpg')}>
-                <img src="/20250818_053853.jpg" alt="Gallery Image" loading="lazy" />
-                <div className="media-type">📷</div>
-              </div>
-              <div className="gallery-item" onClick={() => window.openLightbox('/20250923_033902.jpg')}>
-                <img src="/20250923_033902.jpg" alt="Gallery Image" loading="lazy" />
-                <div className="media-type">📷</div>
-              </div>
-              <div className="gallery-item" onClick={() => window.openLightbox('/20251013_205914.jpg')}>
-                <img src="/20251013_205914.jpg" alt="Gallery Image" loading="lazy" />
-                <div className="media-type">📷</div>
-              </div>
-              <div className="gallery-item" onClick={() => window.openLightbox('/IZ1KqdnC.jpeg')}>
-                <img src="/IZ1KqdnC.jpeg" alt="Gallery Image" loading="lazy" />
-                <div className="media-type">📷</div>
-              </div>
-              <div className="gallery-item" onClick={() => window.openLightbox('/SzU6IOIX.jpeg')}>
-                <img src="/SzU6IOIX.jpeg" alt="Gallery Image" loading="lazy" />
-                <div className="media-type">📷</div>
-              </div>
-              <div className="gallery-item video-item" onClick={() => window.openVideoLightbox('/VID_20250802_155041.mp4')}>
-                <video className="video-thumbnail" muted preload="metadata">
-                  <source src="/VID_20250802_155041.mp4#t=1" type="video/mp4" />
-                </video>
-                <div className="play-button">▶️</div>
-                <div className="media-type">🎥</div>
-              </div>
-              <div className="gallery-item video-item" onClick={() => window.openVideoLightbox('/VID_20250805_001412.mp4')}>
-                <video className="video-thumbnail" muted preload="metadata">
-                  <source src="/VID_20250805_001412.mp4#t=1" type="video/mp4" />
-                </video>
-                <div className="play-button">▶️</div>
-                <div className="media-type">🎥</div>
-              </div>
-              <div className="gallery-item video-item" onClick={() => window.openVideoLightbox('/VID_20250811_074327.mp4')}>
-                <video className="video-thumbnail" muted preload="metadata">
-                  <source src="/VID_20250811_074327.mp4#t=1" type="video/mp4" />
-                </video>
-                <div className="play-button">▶️</div>
-                <div className="media-type">🎥</div>
-              </div>
-              <div className="gallery-item" onClick={() => window.openLightbox('/kathy-gallery/Sybian-on-bench.jpg')}>
-                <img src="/kathy-gallery/Sybian-on-bench.jpg" alt="Gallery Image" loading="lazy" />
-                <div className="media-type">📷</div>
-              </div>
-              <div className="gallery-item" onClick={() => window.openLightbox('/kathy-gallery/IMG_2608-scaled.jpg')}>
-                <img src="/kathy-gallery/IMG_2608-scaled.jpg" alt="Gallery Image" loading="lazy" />
-                <div className="media-type">📷</div>
-              </div>
-              <div className="gallery-item" onClick={() => window.openLightbox('/kathy-gallery/IMG_2616-scaled.jpg')}>
-                <img src="/kathy-gallery/IMG_2616-scaled.jpg" alt="Gallery Image" loading="lazy" />
-                <div className="media-type">📷</div>
-              </div>
-              <div className="gallery-item" onClick={() => window.openLightbox('/kathy-gallery/Milking-Table-1.jpg')}>
-                <img src="/kathy-gallery/Milking-Table-1.jpg" alt="Gallery Image" loading="lazy" />
-                <div className="media-type">📷</div>
-              </div>
-              <div className="gallery-item" onClick={() => window.openLightbox('/kathy-gallery/photo_2025-12-26_22-53-00.jpg')}>
-                <img src="/kathy-gallery/photo_2025-12-26_22-53-00.jpg" alt="Gallery Image" loading="lazy" />
-                <div className="media-type">📷</div>
-              </div>
+              {['/20250811_080612.jpg', '/20250818_053853.jpg'].map((img, i) => (
+                <div key={i} className="gallery-item" onClick={() => openLightbox(img)}>
+                  <img src={img} alt="Gallery" loading="lazy" />
+                </div>
+              ))}
             </div>
           </div>
         </div>
       </section>
 
-      <section id="booking" className="booking animate-on-scroll">
-        <div className="container">
-          <h2>Book Your Session</h2>
-          <div className="booking-content">
-            <div className="booking-form">
-              <h3>Quick Booking</h3>
-              <form onSubmit={(e) => window.handleBooking(e)}>
-                <select id="serviceType" required>
-                  <option value="">Select Service</option>
-                  <option value="online">Online Session ($150-$750)</option>
-                  <option value="sissy">Sissy Training ($300)</option>
-                  <option value="inperson">In-Person Session ($700-$1200)</option>
-                  <option value="dungeon">Dungeon Play Session ($800-$1500)</option>
-                </select>
-                <input type="date" id="bookingDate" required />
-                <select id="preferredTime" required>
-                  <option value="">Preferred Time</option>
-                  <option value="morning">Morning (9AM-12PM)</option>
-                  <option value="afternoon">Afternoon (12PM-6PM)</option>
-                  <option value="evening">Evening (6PM-12AM)</option>
-                  <option value="late">Late Night (12AM-6AM)</option>
-                </select>
-                <input type="text" id="clientName" placeholder="Your Name" required />
-                <input type="email" id="clientEmail" placeholder="Your Email" required />
-                <input type="tel" id="clientPhone" placeholder="Your Phone (optional)" />
-                <textarea id="specialRequests" placeholder="Special Requests" rows="3"></textarea>
-                <button type="submit">Book Session</button>
-              </form>
-            </div>
-            <div className="booking-info">
-              <h3>Booking Information</h3>
-              <div className="info-item">
-                <span className="icon">📍</span>
-                <div>
-                  <strong>Location:</strong>
-                  <p>Available worldwide - Online sessions</p>
-                  <p>In-person: Major cities (travel available)</p>
-                </div>
-              </div>
-              <div className="info-item">
-                <span className="icon">⏰</span>
-                <div>
-                  <strong>Availability:</strong>
-                  <p>24/7 for online sessions</p>
-                  <p>In-person: By appointment</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section id="testimonials" className="testimonials animate-on-scroll">
+      {/* Testimonials */}
+      <section id="testimonials" className="testimonials">
         <div className="container">
           <h2>Client Reviews</h2>
           <div className="testimonials-grid">
-            <div className="testimonial-card">
-              <div className="stars">⭐⭐⭐⭐⭐</div>
-              <p>"Amazing experience! Kathy is professional and knows exactly what she's doing. Highly recommended!"</p>
-              <span className="client-name">- JP</span>
-            </div>
-            <div className="testimonial-card">
-              <div className="stars">⭐⭐⭐⭐⭐</div>
-              <p>"Best mistress I've ever worked with. Discrete, professional, and incredibly skilled."</p>
-              <span className="client-name">- AD</span>
-            </div>
-            <div className="testimonial-card">
-              <div className="stars">⭐⭐⭐⭐⭐</div>
-              <p>"Kathy helped me explore my limits in a safe and exciting way. Will definitely book again!"</p>
-              <span className="client-name">- KS</span>
-            </div>
+            {[
+              { stars: "⭐⭐⭐⭐⭐", text: "Kathy broke me completely and rebuilt me as her perfect sissy slut. Life-changing experience!", client: "- Sissy Jessica" },
+              { stars: "⭐⭐⭐⭐⭐", text: "Best mistress ever! She knows exactly how to make me suffer and beg for more. Addicted!", client: "- Slave Mike" },
+              { stars: "⭐⭐⭐⭐⭐", text: "My chastity training with Kathy was intense. She owns my cock now and I love it!", client: "- Locked Boy" }
+            ].map((testimonial, i) => (
+              <div key={i} className="testimonial-card">
+                <div className="stars">{testimonial.stars}</div>
+                <p>{testimonial.text}</p>
+                <span className="client-name">{testimonial.client}</span>
+              </div>
+            ))}
           </div>
         </div>
       </section>
 
-      <section id="pricing" className="pricing animate-on-scroll">
+      {/* Pricing */}
+      <section id="pricing" className="pricing">
         <div className="container">
-          <h2>Professional Service Rates</h2>
+          <h2 style={{
+            background: 'linear-gradient(45deg, #ff1493, #ff69b4, #8b008b)',
+            WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent'
+          }}>💰 Service Rates</h2>
           <div className="pricing-grid">
-            <div className="pricing-card expandable" onClick={() => window.togglePricing('online')}>
-              <div className="service-badge">💻 VIRTUAL</div>
-              <h3>Online Sessions</h3>
-              <div className="price">$150 - $750</div>
-              <ul>
-                <li>HD Video chat sessions</li>
-                <li>Custom requests & scenarios</li>
-                <li>24/7 flexible scheduling</li>
-                <li>Screen recording available</li>
-              </ul>
-              <div className="expand-icon">+</div>
-              <div id="online" className="pricing-details hidden">
-                <h4>📱 Digital Services Menu:</h4>
-                <div className="service-category">
-                  <h5>🎥 Video Services</h5>
-                  <ul>
-                    <li>Video Chat (30min) - $150</li>
-                    <li>Video Chat (60min) - $250</li>
-                    <li>Video Chat (90min) - $350</li>
-                    <li>Premium HD Sessions - $400-$750</li>
-                  </ul>
-                </div>
-                <div className="payment-options">
-                  <button onClick={() => window.openPayPalPayment(150)}>💰 PayPal</button>
-                  <button onClick={() => window.openBitcoinPayment(150)}>₿ Bitcoin</button>
-                </div>
+            {[
+              { title: "🔥 Domination Sessions", price: "$150 - $750", features: ["HD cam domination", "Humiliation & degradation", "JOI & CEI instructions", "Custom fetish content"] },
+              { title: "⛓️ BDSM Training", price: "$300 - $1500", features: ["Pain training protocols", "Slave position training", "Punishment sessions", "Orgasm control"] },
+              { title: "👗 Sissy Makeover", price: "$500 - $2000", features: ["Complete feminization", "Makeup & dress training", "Slut behavior coaching", "Public humiliation prep"] }
+            ].map((plan, i) => (
+              <div key={i} className="pricing-card">
+                <h3>{plan.title}</h3>
+                <div className="price">{plan.price}</div>
+                <ul>{plan.features.map((f, j) => <li key={j}>{f}</li>)}</ul>
               </div>
-            </div>
-            
-            <div className="pricing-card featured expandable" onClick={() => window.togglePricing('sissy')}>
-              <div className="service-badge popular">🎭 SPECIALTY</div>
-              <h3>Training Programs</h3>
-              <div className="price">$300 - $1500</div>
-              <ul>
-                <li>Personalized training protocols</li>
-                <li>Progress tracking & assessments</li>
-                <li>24/7 ongoing support</li>
-                <li>Certification upon completion</li>
-              </ul>
-              <div className="expand-icon">+</div>
-              <div id="sissy" className="pricing-details hidden">
-                <h4>🎓 Comprehensive Training Menu:</h4>
-                <div className="service-category">
-                  <h5>👗 Feminization & Sissy Training</h5>
-                  <ul>
-                    <li>Basic Sissy Training (1 session) - $300</li>
-                    <li>Advanced Sissy Program (3 sessions) - $800</li>
-                    <li>Complete Feminization Course - $1200</li>
-                  </ul>
-                </div>
-                <div className="payment-options">
-                  <button onClick={() => window.openPayPalPayment(300)}>💰 PayPal</button>
-                  <button onClick={() => window.openBitcoinPayment(300)}>₿ Bitcoin</button>
-                </div>
-              </div>
-            </div>
-            
-            <div className="pricing-card expandable" onClick={() => window.togglePricing('inperson')}>
-              <div className="service-badge premium">🏛️ ELITE</div>
-              <h3>In-Person Sessions</h3>
-              <div className="price">$700 - $5000</div>
-              <ul>
-                <li>Private luxury meetings</li>
-                <li>Professional dungeon sessions</li>
-                <li>Worldwide travel available</li>
-                <li>Discretion & confidentiality guaranteed</li>
-              </ul>
-              <div className="expand-icon">+</div>
-              <div id="inperson" className="pricing-details hidden">
-                <h4>🏆 Premium In-Person Services:</h4>
-                <div className="service-category">
-                  <h5>🏰 Dungeon & BDSM Sessions</h5>
-                  <ul>
-                    <li>Dungeon Play Sessions - $800-$1500</li>
-                    <li>Heavy BDSM Sessions - $1000-$2000</li>
-                    <li>Equipment Training - $900-$1600</li>
-                  </ul>
-                </div>
-                <div className="payment-options">
-                  <button onClick={() => window.openPayPalPayment(700)}>💰 PayPal</button>
-                  <button onClick={() => window.openBitcoinPayment(700)}>₿ Bitcoin</button>
-                </div>
-              </div>
-            </div>
+            ))}
           </div>
         </div>
       </section>
 
-      <section id="contact" className="contact animate-on-scroll">
+      {/* Booking */}
+      <section id="booking" className="booking">
         <div className="container">
-          <h2>Get In Touch</h2>
-          <div className="contact-content">
-            <div className="contact-info">
-              <h3>Contact Information</h3>
-              <div className="contact-item">
-                <span className="icon">📧</span>
-                <span>kathtri57@gmail.com</span>
-              </div>
-              <div className="contact-item">
-                <span className="icon">⏰</span>
-                <span>24/7 Professional Service</span>
-              </div>
-              <div className="social-links">
-                <a href="https://twitter.com/tshungkatherine" target="_blank" rel="noopener noreferrer">Twitter</a>
-                <a href="https://t.me/tshungkath10" target="_blank" rel="noopener noreferrer">Telegram</a>
-              </div>
+          <h2>📅 Book Your Session</h2>
+          <div className="booking-form">
+            <form onSubmit={(e) => {
+              e.preventDefault()
+              const service = new FormData(e.target).get('service')
+              setPaymentModal({ open: true, service: service + ' Session', price: '$150' })
+            }}>
+              <select name="service" required>
+                <option value="">Select Your Submission</option>
+                <option value="domination">🔥 Online Domination Session</option>
+                <option value="sissy">👗 Sissy Training Program</option>
+                <option value="bdsm">⛓️ BDSM Pain Training</option>
+                <option value="chastity">🔒 Chastity Control</option>
+                <option value="findom">💰 Financial Domination</option>
+              </select>
+              <input type="date" name="date" required />
+              <input type="text" name="name" placeholder="Your Name" required />
+              <button type="submit">Proceed to Payment</button>
+            </form>
+          </div>
+        </div>
+      </section>
+
+      {/* Contact */}
+      <section id="contact" className="contact">
+        <div className="container">
+          <h2>💋 Get In Touch</h2>
+          <div className="contact-info">
+            <div className="contact-item">
+              <span className="icon">📧</span>
+              <span>kathtri57@gmail.com</span>
             </div>
-            <div className="contact-form">
-              <h3>Send a Message / Book Session</h3>
-              <form onSubmit={(e) => window.handleContactForm(e)}>
-                <input type="text" id="contactName" placeholder="Your Name" required />
-                <input type="email" id="contactEmail" placeholder="Your Email" required />
-                <select id="inquiryType">
-                  <option value="general">General Inquiry</option>
-                  <option value="booking">Book Session</option>
-                  <option value="payment">Payment Confirmation</option>
-                </select>
-                <textarea id="contactMessage" placeholder="Your Message / Special Requests" rows="5" required></textarea>
-                <button type="submit">Send Message</button>
-              </form>
+            <div className="contact-item">
+              <span className="icon">📱</span>
+              <span>Telegram: @tshungkath10</span>
+            </div>
+            <div className="contact-item">
+              <span className="icon">🔥</span>
+              <span>Available 24/7 for your submission</span>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Service Details Modal */}
-      <div id="serviceModal" className="service-modal hidden">
-        <div className="service-modal-content">
-          <span className="close-service" onClick={() => window.closeServiceModal()}>&times;</span>
-          <div id="serviceModalContent">
-            {/* Content will be populated by JavaScript */}
+      {/* Dungeon Section */}
+      <section id="dungeon" className="dungeon">
+        <div className="container">
+          <h2 style={{
+            background: 'linear-gradient(45deg, #8b008b, #ff1493, #000)',
+            WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent'
+          }}>🏰 My Private Dungeon</h2>
+          <div className="dungeon-grid">
+            <div className="dungeon-card">
+              <img src="/dungeon/restraint-station.jpg" alt="Restraint Station" className="dungeon-image" />
+              <h3>⛓️ Restraint Station</h3>
+              <p>Professional bondage equipment including St. Andrew's cross, suspension points, and medical restraints</p>
+            </div>
+            <div className="dungeon-card">
+              <img src="/dungeon/impact-play.jpg" alt="Impact Play Area" className="dungeon-image" />
+              <h3>🔥 Impact Play Area</h3>
+              <p>Paddles, floggers, whips, and canes for proper discipline and punishment sessions</p>
+            </div>
+            <div className="dungeon-card">
+              <img src="/dungeon/transformation-chamber.jpg" alt="Transformation Chamber" className="dungeon-image" />
+              <h3>🎭 Transformation Chamber</h3>
+              <p>Full sissy makeover station with makeup, wigs, lingerie, and feminine accessories</p>
+            </div>
+            <div className="dungeon-card">
+              <img src="/dungeon/chastity-training.jpg" alt="Chastity Training" className="dungeon-image" />
+              <h3>🔒 Chastity Training</h3>
+              <p>Collection of chastity devices and orgasm control equipment for long-term training</p>
+            </div>
+            <div className="dungeon-card">
+              <img src="/dungeon/worship-throne.jpg" alt="Worship Throne" className="dungeon-image" />
+              <h3>👠 Worship Throne</h3>
+              <p>Elevated platform for foot worship, body worship, and submission rituals</p>
+            </div>
+            <div className="dungeon-card">
+              <img src="/dungeon/roleplay-sets.jpg" alt="Role-Play Sets" className="dungeon-image" />
+              <h3>🎪 Role-Play Sets</h3>
+              <p>Medical examination table, schoolroom setup, and various fantasy scenarios</p>
+            </div>
+          </div>
+          <div className="dungeon-rules">
+            <h3>🔥 Dungeon Rules & Safety</h3>
+            <ul>
+              <li>Safe words always respected - "Yellow" to slow down, "Red" to stop immediately</li>
+              <li>All equipment professionally maintained and sanitized between sessions</li>
+              <li>Health screening required for all in-person dungeon sessions</li>
+              <li>Limits discussed and agreed upon before any session begins</li>
+              <li>Aftercare provided - water, snacks, and emotional support included</li>
+              <li>Discretion guaranteed - private entrance and soundproofed rooms</li>
+            </ul>
           </div>
         </div>
-      </div>
+      </section>
 
-      {/* Auth Modal */}
-      <div id="authModal" className="auth-modal hidden">
-        <div className="auth-modal-content">
-          <span className="close-auth" onClick={() => window.closeAuthModal()}>&times;</span>
-          
-          <div id="emailStep" className="auth-form">
-            <h3>Sign in</h3>
-            <p>to continue to TshungKath</p>
-            <input type="email" id="authEmail" placeholder="Email" required />
-            <div className="auth-buttons-modal">
-              <button onClick={() => window.showCreateAccount()} className="secondary-btn">Create account</button>
-              <button onClick={() => window.nextToPassword()} className="primary-btn">Next</button>
-            </div>
-          </div>
-          
-          <div id="passwordStep" className="auth-form hidden">
-            <div className="user-info">
-              <span id="userEmail"></span>
-              <button onClick={() => window.backToEmail()} className="back-btn">↩</button>
-            </div>
-            <h3>Welcome</h3>
-            <input type="password" id="authPassword" placeholder="Enter your password" required />
-            <div className="auth-buttons-modal">
-              <button onClick={() => window.handleLogin()} className="primary-btn full-width">Sign in</button>
-            </div>
-          </div>
-          
-          <div id="createStep" className="auth-form hidden">
-            <h3>Create account</h3>
-            <p>Join TshungKath premium services</p>
-            <input type="text" id="signupName" placeholder="Full name" required />
-            <input type="email" id="signupEmail" placeholder="Email" required />
-            <input type="password" id="signupPassword" placeholder="Password" required />
-            <div className="auth-buttons-modal">
-              <button onClick={() => window.backToEmail()} className="secondary-btn">Sign in instead</button>
-              <button onClick={() => window.handleSignup()} className="primary-btn">Create</button>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Admin Panel */}
-      <div id="adminPanel" className="admin-panel hidden">
-        <div className="admin-panel-content">
-          <span className="close-admin" onClick={() => window.closeAdminPanel()}>&times;</span>
-          <h3>🔧 Admin Dashboard</h3>
-          <div className="admin-tabs">
-            <div className="admin-section">
-              <h4>📊 Analytics</h4>
-              <p>Total Users: 150</p>
-              <p>Active Sessions: 12</p>
-              <p>Revenue This Month: $15,750</p>
-            </div>
-            <div className="admin-section">
-              <h4>👥 User Management</h4>
-              <button className="admin-btn">View All Users</button>
-              <button className="admin-btn">Manage Subscriptions</button>
-            </div>
-            <div className="admin-section">
-              <h4>💰 Payments</h4>
-              <button className="admin-btn">Payment History</button>
-              <button className="admin-btn">Pending Payments</button>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Lightbox */}
-      <div id="lightbox" className="lightbox" onClick={() => window.closeLightbox()}>
-        <div className="lightbox-content" onClick={(e) => e.stopPropagation()}>
-          <span className="close-lightbox" onClick={() => window.closeLightbox()}>&times;</span>
-          <img id="lightbox-img" className="lightbox-img" alt="Gallery" />
-          <video id="lightbox-video" controls className="lightbox-video"></video>
-        </div>
-      </div>
-
-      {/* PayPal Payment Modal */}
-      <div id="paypalModal" className="payment-modal hidden">
-        <div className="payment-modal-content">
-          <span className="close-payment" onClick={() => window.closePaypalModal()}>&times;</span>
-          <h3>💰 PayPal Payment</h3>
-          <div className="payment-info">
-            <div className="amount-display" id="paypalAmount">$0</div>
-            <div className="paypal-email-container">
-              <label>PayPal Email:</label>
-              <div className="email-box">
-                <input type="text" id="paypalEmail" value="kathtri57@gmail.com" readOnly />
-                <button onClick={() => window.copyPaypalEmail()} className="copy-btn">📋 Copy</button>
-              </div>
-            </div>
-            <p>Send payment to this PayPal email or contact us for invoice</p>
-          </div>
-        </div>
-      </div>
-
-      {/* Bitcoin Payment Modal */}
-      <div id="bitcoinModal" className="payment-modal hidden">
-        <div className="payment-modal-content">
-          <span className="close-payment" onClick={() => window.closeBitcoinModal()}>&times;</span>
-          <h3>₿ Bitcoin Payment</h3>
-          <div className="payment-info">
-            <div className="amount-display" id="bitcoinAmount">$0</div>
-            <div className="bitcoin-address-container">
-              <label>Bitcoin Address:</label>
-              <div className="address-box">
-                <input type="text" id="bitcoinAddress" value="bc1q77mna3wnsvfuts4jksua6609l2fzych6vkgejs" readOnly />
-                <button onClick={() => window.copyBitcoinAddress()} className="copy-btn">📋 Copy</button>
-              </div>
-            </div>
-            <p>Send payment to this address and contact <strong>kathtri57@gmail.com</strong> with transaction ID</p>
-          </div>
-        </div>
-      </div>
-
+      {/* Footer */}
       <footer className="footer">
         <div className="container">
-          <div className="footer-content">
-            <div className="footer-section">
-              <h3>TshungKath</h3>
-              <p>Professional companion services with discretion and excellence.</p>
-            </div>
-            <div className="footer-section">
-              <h4>Services</h4>
-              <ul>
-                <li>Online Sessions</li>
-                <li>Sissy Training</li>
-                <li>In-Person Meetings</li>
-                <li>Dungeon Play</li>
-              </ul>
-            </div>
-            <div className="footer-section">
-              <h4>Contact</h4>
-              <p>Email: kathtri57@gmail.com</p>
-              <p>Available: 24/7</p>
-            </div>
-          </div>
-          <div className="footer-bottom">
-            <p>&copy; 2024 TshungKath Professional Services. All rights reserved.</p>
-          </div>
+          <p>&copy; 2026 TshungKath Professional Services. All rights reserved.</p>
         </div>
       </footer>
 
-      <button id="scrollTop" className="scroll-top" onClick={() => window.scrollToTop()}>↑</button>
-      <style jsx global>{`
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: Arial, sans-serif; background: #000; color: #fff; line-height: 1.6; overflow-x: hidden; }
-        
-        /* Motion Effects */
-        .animate-on-scroll { opacity: 0; transform: translateY(50px); transition: all 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94); }
-        .animate-on-scroll.animate-in { opacity: 1; transform: translateY(0); }
-        
-        .social-top { background: #111; padding: 0.5rem 0; text-align: center; }
-        .social-links a { margin: 0 10px; font-size: 1.2rem; text-decoration: none; transition: transform 0.3s; }
-        .social-links a:hover { transform: scale(1.2); }
-        
-        .navbar { background: #000; padding: 1rem 0; border-bottom: 2px solid #ff1493; position: sticky; top: 0; z-index: 100; backdrop-filter: blur(10px); }
-        .nav-container { max-width: 1200px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; padding: 0 1rem; }
-        .left-section { display: flex; align-items: center; }
-        .logo { color: #ff1493; font-size: 1.8rem; font-weight: bold; text-shadow: 0 0 10px rgba(255,20,147,0.5); }
-        .mobile-menu-btn { background: #ff1493; border: none; color: white; font-size: 18px; padding: 8px 12px; border-radius: 5px; cursor: pointer; margin-left: 15px; display: none; transition: all 0.3s; }
-        .mobile-menu-btn:hover { transform: scale(1.1); }
-        .auth-buttons { display: flex; gap: 1rem; }
-        .login-btn, .admin-btn { background: linear-gradient(135deg, #ff1493, #ff6b9d); border: none; color: white; padding: 8px 16px; border-radius: 20px; cursor: pointer; transition: all 0.3s; box-shadow: 0 2px 10px rgba(255,20,147,0.3); }
-        .login-btn:hover, .admin-btn:hover { transform: translateY(-2px); box-shadow: 0 4px 15px rgba(255,20,147,0.5); }
-        .nav-wrapper { display: block; }
-        .nav-menu { display: flex; list-style: none; gap: 2rem; }
-        .nav-menu a { color: #fff; text-decoration: none; padding: 0.5rem 1rem; border-radius: 20px; transition: all 0.3s; position: relative; }
-        .nav-menu a:hover { background: linear-gradient(135deg, #ff1493, #ff6b9d); transform: translateY(-2px); }
-        
-        .hero { 
-          background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url('/20250811_080612.jpg') center/cover;
-          padding: 8rem 0; 
-          text-align: center; 
-          min-height: 100vh;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          position: relative;
+      {/* Live Chat Widget */}
+      <AnimatePresence>
+        {liveChatOpen && (
+          <motion.div style={{
+            position: 'fixed', bottom: '20px', right: '20px', width: '350px', height: '500px',
+            background: 'white', borderRadius: '15px', boxShadow: '0 10px 30px rgba(0,0,0,0.3)', zIndex: 10000
+          }} initial={{ x: 400, opacity: 0 }} animate={{ x: 0, opacity: 1 }} exit={{ x: 400, opacity: 0 }}>
+            <div style={{
+              background: '#000', color: 'white', padding: '15px', borderRadius: '15px 15px 0 0',
+              display: 'flex', justifyContent: 'space-between', alignItems: 'center'
+            }}>
+              <span>💬 Live Chat with Kathy</span>
+              <button onClick={() => setLiveChatOpen(false)} style={{
+                background: 'none', border: 'none', color: 'white', fontSize: '20px', cursor: 'pointer'
+              }}>×</button>
+            </div>
+            <div style={{ padding: '20px', height: '350px', overflow: 'auto', background: '#f8f9fa' }}>
+              <div style={{ marginBottom: '15px', padding: '10px', background: '#333', color: 'white', borderRadius: '10px' }}>
+                <strong>Mistress Kathy:</strong> Ready to submit to me, slave? Tell me your deepest fantasies 😈🔥
+              </div>
+              <div style={{ marginBottom: '15px', padding: '10px', background: '#ff1493', color: 'white', borderRadius: '10px', marginLeft: '20px' }}>
+                <strong>You:</strong> Please use me however you want, Mistress
+              </div>
+              <div style={{ marginBottom: '15px', padding: '10px', background: '#333', color: 'white', borderRadius: '10px' }}>
+                <strong>Mistress Kathy:</strong> Good slut. I'm going to break you and make you beg for more 💋
+              </div>
+            </div>
+            <div style={{ padding: '15px', borderTop: '1px solid #eee', display: 'flex', gap: '10px' }}>
+              <input type="text" placeholder="Type your message..." style={{
+                flex: 1, padding: '10px', border: '1px solid #ddd', borderRadius: '20px', outline: 'none'
+              }} />
+              <button style={{
+                background: '#ff1493', border: 'none', color: 'white', padding: '10px 20px',
+                borderRadius: '20px', cursor: 'pointer', fontWeight: 'bold'
+              }}>Send</button>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Floating Action Buttons */}
+      <div style={{
+        position: 'fixed', bottom: '100px', right: '20px', display: 'flex',
+        flexDirection: 'column', gap: '10px', zIndex: 9998
+      }}>
+        <button onClick={startSessionTimer} style={{
+          width: '50px', height: '50px', borderRadius: '50%',
+          background: 'linear-gradient(45deg, #8b008b, #ff1493)', border: 'none',
+          color: 'white', fontSize: '20px', cursor: 'pointer', boxShadow: '0 4px 12px rgba(139,0,139,0.4)'
+        }} title="Start Session">⏱️</button>
+        <button onClick={() => addNotification('🔥 New kinky content available!')} style={{
+          width: '50px', height: '50px', borderRadius: '50%',
+          background: 'linear-gradient(45deg, #ff4500, #ff1493)', border: 'none',
+          color: 'white', fontSize: '20px', cursor: 'pointer', boxShadow: '0 4px 12px rgba(255,69,0,0.4)'
+        }} title="Notifications">🔔</button>
+      </div>
+
+      {/* Kinky Floating Emojis */}
+      <div style={{
+        position: 'fixed', top: 0, left: 0, width: '100%', height: '100%',
+        pointerEvents: 'none', zIndex: -1, overflow: 'hidden'
+      }}>
+        {['💋', '🔥', '⛓️', '🖤', '💜'].map((emoji, i) => (
+          <div key={i} style={{
+            position: 'absolute',
+            left: `${20 + i * 20}%`,
+            animation: `float ${3 + i}s ease-in-out infinite`,
+            fontSize: '2rem',
+            opacity: 0.1
+          }}>{emoji}</div>
+        ))}
+      </div>
+
+      {/* Live Chat */}
+      <button onClick={() => setLiveChatOpen(!liveChatOpen)} style={{
+        position: 'fixed', bottom: '20px', right: '20px', width: '60px', height: '60px',
+        borderRadius: '50%', background: 'linear-gradient(45deg, #ff1493, #ff69b4)',
+        border: 'none', color: 'white', fontSize: '24px', cursor: 'pointer',
+        display: liveChatOpen ? 'none' : 'flex', alignItems: 'center', justifyContent: 'center'
+      }}>💬</button>
+
+      {/* Notifications */}
+      <div style={{ position: 'fixed', top: '20px', right: '20px', zIndex: 10001 }}>
+        <AnimatePresence>
+          {notifications.map(n => (
+            <motion.div key={n.id} initial={{ x: 300, opacity: 0 }} animate={{ x: 0, opacity: 1 }} exit={{ x: 300, opacity: 0 }} style={{
+              background: '#28a745', color: 'white', padding: '15px 20px', borderRadius: '8px', marginBottom: '10px'
+            }}>{n.message}</motion.div>
+          ))}
+        </AnimatePresence>
+      </div>
+
+      {/* Session Timer */}
+      <AnimatePresence>
+        {sessionTimerActive && (
+          <motion.div style={{
+            position: 'fixed', top: '20px', left: '50%', transform: 'translateX(-50%)',
+            background: 'rgba(0,0,0,0.8)', color: 'white', padding: '15px 25px', borderRadius: '25px'
+          }} initial={{ y: -100, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: -100, opacity: 0 }}>
+            <span>⏱️ Session: {formatTime(timerSeconds)}</span>
+            <button onClick={endSession} style={{
+              background: '#ff1493', border: 'none', color: 'white', padding: '5px 15px',
+              borderRadius: '15px', cursor: 'pointer', marginLeft: '15px'
+            }}>End</button>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Lightbox */}
+      <AnimatePresence>
+        {lightboxOpen && (
+          <motion.div onClick={closeLightbox} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} style={{
+            position: 'fixed', top: 0, left: 0, width: '100%', height: '100%',
+            background: 'rgba(0,0,0,0.9)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 10000
+          }}>
+            <div onClick={(e) => e.stopPropagation()} style={{ position: 'relative' }}>
+              <button onClick={closeLightbox} style={{
+                position: 'absolute', top: '-40px', right: '0', background: 'none',
+                border: 'none', color: 'white', fontSize: '2rem', cursor: 'pointer'
+              }}>×</button>
+              <img src={lightboxImage} alt="Gallery" style={{ maxWidth: '90vw', maxHeight: '90vh' }} />
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Auth Modal */}
+      <AnimatePresence>
+        {authModal && (
+          <motion.div onClick={() => setAuthModal(false)} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} style={{
+            position: 'fixed', top: 0, left: 0, width: '100%', height: '100%',
+            background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 10000
+          }}>
+            <div onClick={(e) => e.stopPropagation()} style={{
+              background: 'white', borderRadius: '15px', padding: '40px', maxWidth: '400px', width: '90%'
+            }}>
+              <button onClick={() => setAuthModal(false)} style={{
+                position: 'absolute', top: '15px', right: '20px', background: 'none',
+                border: 'none', fontSize: '24px', cursor: 'pointer'
+              }}>×</button>
+              <h3>Sign In</h3>
+              <input id="authEmail" type="email" placeholder="Email" style={{ width: '100%', padding: '15px', marginBottom: '20px', border: '2px solid #e0e0e0', borderRadius: '10px' }} />
+              <input id="authPassword" type="password" placeholder="Password" style={{ width: '100%', padding: '15px', marginBottom: '20px', border: '2px solid #e0e0e0', borderRadius: '10px' }} />
+              <button onClick={() => {
+                const email = document.getElementById('authEmail')?.value
+                const password = document.getElementById('authPassword')?.value
+                if (email && password) handleLogin(email, password)
+              }} style={{
+                width: '100%', padding: '15px', background: 'linear-gradient(45deg, #ff1493, #ff69b4)',
+                color: 'white', border: 'none', borderRadius: '10px', cursor: 'pointer'
+              }}>Sign In</button>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* PWA Install Prompt */}
+      <AnimatePresence>
+        {showInstallPrompt && (
+          <motion.div style={{
+            position: 'fixed', bottom: '90px', right: '20px', background: 'white', padding: '20px',
+            borderRadius: '15px', boxShadow: '0 10px 30px rgba(0,0,0,0.3)', zIndex: 10000, maxWidth: '300px'
+          }} initial={{ x: 400, opacity: 0 }} animate={{ x: 0, opacity: 1 }} exit={{ x: 400, opacity: 0 }}>
+            <button onClick={() => setShowInstallPrompt(false)} style={{
+              position: 'absolute', top: '10px', right: '15px', background: 'none',
+              border: 'none', fontSize: '20px', cursor: 'pointer'
+            }}>×</button>
+            <h4 style={{ margin: '0 0 10px 0', color: '#333' }}>📱 Install TshungKath App</h4>
+            <p style={{ margin: '0 0 15px 0', color: '#666', fontSize: '14px' }}>
+              Get the full app experience with offline access and notifications
+            </p>
+            <div style={{ display: 'flex', gap: '10px' }}>
+              <button onClick={handleInstallPWA} style={{
+                background: '#ff1493', color: 'white', border: 'none', padding: '10px 15px',
+                borderRadius: '8px', cursor: 'pointer', fontSize: '14px', fontWeight: '600'
+              }}>Install</button>
+              <button onClick={() => setShowInstallPrompt(false)} style={{
+                background: '#f0f0f0', color: '#666', border: 'none', padding: '10px 15px',
+                borderRadius: '8px', cursor: 'pointer', fontSize: '14px'
+              }}>Later</button>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Admin Dashboard Button */}
+      {user && user.email === 'kathtri57@gmail.com' && (
+        <button onClick={() => window.open('/admin-dashboard.html', '_blank')} style={{
+          position: 'fixed', top: '50%', left: '20px', transform: 'translateY(-50%)',
+          width: '50px', height: '50px', borderRadius: '50%',
+          background: 'linear-gradient(45deg, #28a745, #20c997)', border: 'none',
+          color: 'white', fontSize: '20px', cursor: 'pointer', zIndex: 1000
+        }} title="Admin Dashboard">⚙️</button>
+      )}
+
+      {/* Payment Gateway */}
+      <PaymentGateway 
+        isOpen={paymentModal.open}
+        onClose={() => setPaymentModal({ open: false, service: '', price: '' })}
+        service={paymentModal.service}
+        price={paymentModal.price}
+      />
+      
+      <style jsx>{`
+        @keyframes gradientShift {
+          0% { background-position: 0% 50%; }
+          50% { background-position: 100% 50%; }
+          100% { background-position: 0% 50%; }
         }
-        .hero::before { content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: linear-gradient(45deg, rgba(255,20,147,0.1), rgba(0,0,0,0.8)); }
-        .hero-content { max-width: 800px; position: relative; z-index: 2; }
-        .hero-content h1 { font-size: 4rem; margin-bottom: 1rem; color: #fff; text-shadow: 2px 2px 4px rgba(0,0,0,0.8); animation: glow 2s ease-in-out infinite alternate; }
-        @keyframes glow { from { text-shadow: 2px 2px 4px rgba(0,0,0,0.8), 0 0 20px rgba(255,20,147,0.5); } to { text-shadow: 2px 2px 4px rgba(0,0,0,0.8), 0 0 30px rgba(255,20,147,0.8); } }
-        .hero-content p { font-size: 1.4rem; margin-bottom: 2rem; opacity: 0.9; }
-        .cta-button { background: linear-gradient(135deg, #ff1493, #ff6b9d); color: white; padding: 1.2rem 2.5rem; text-decoration: none; border-radius: 30px; display: inline-block; font-weight: bold; font-size: 1.1rem; transition: all 0.3s; box-shadow: 0 4px 15px rgba(255,20,147,0.4); }
-        .cta-button:hover { transform: translateY(-3px) scale(1.05); box-shadow: 0 6px 20px rgba(255,20,147,0.6); }
-        
-        .about, .services, .gallery, .booking, .testimonials, .pricing, .contact { padding: 5rem 0; }
-        .container { max-width: 1200px; margin: 0 auto; padding: 0 1rem; }
-        h2 { font-size: 3rem; text-align: center; margin-bottom: 4rem; color: #ff1493; text-shadow: 1px 1px 2px rgba(0,0,0,0.5); position: relative; }
-        h2::after { content: ''; position: absolute; bottom: -10px; left: 50%; transform: translateX(-50%); width: 100px; height: 3px; background: linear-gradient(135deg, #ff1493, #ff6b9d); border-radius: 2px; }
-        
-        .about-text { max-width: 800px; margin: 0 auto; text-align: center; }
-        .about-text p { font-size: 1.2rem; margin-bottom: 2rem; line-height: 1.8; }
-        .about-text ul { list-style: none; display: flex; justify-content: center; gap: 2rem; flex-wrap: wrap; margin-top: 3rem; }
-        .about-text li { background: linear-gradient(135deg, #111, #222); padding: 1.5rem; border-radius: 15px; border: 2px solid #ff1493; box-shadow: 0 4px 15px rgba(255,20,147,0.2); transition: all 0.3s; }
-        .about-text li:hover { transform: translateY(-5px); box-shadow: 0 8px 25px rgba(255,20,147,0.4); }
-        
-        .services-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 2rem; }
-        .service-card { background: linear-gradient(135deg, #111, #222); padding: 2.5rem; border-radius: 20px; border: 2px solid #ff1493; text-align: center; transition: all 0.5s; box-shadow: 0 4px 15px rgba(0,0,0,0.3); position: relative; overflow: hidden; cursor: pointer; }
-        .service-card::before { content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; background: linear-gradient(45deg, transparent, rgba(255,20,147,0.1), transparent); transform: rotate(45deg); transition: all 0.5s; opacity: 0; }
-        .service-card:hover::before { opacity: 1; animation: shimmer 1s ease-in-out; }
-        .service-card:hover { transform: translateY(-10px) scale(1.02); box-shadow: 0 15px 35px rgba(255,20,147,0.3); }
-        @keyframes shimmer { 0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); } 100% { transform: translateX(100%) translateY(100%) rotate(45deg); } }
-        .service-card h3 { color: #ff1493; margin-bottom: 1rem; font-size: 1.3rem; position: relative; z-index: 2; }
-        .service-card p { position: relative; z-index: 2; margin-bottom: 1rem; }
-        .service-icon { font-size: 3rem; margin-bottom: 1rem; position: relative; z-index: 2; }
-        .service-preview { background: rgba(255,20,147,0.2); padding: 0.5rem 1rem; border-radius: 15px; font-size: 0.9rem; color: #ff1493; font-weight: bold; position: relative; z-index: 2; }
-        
-        /* Service Modal */
-        .service-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 1000; display: flex; align-items: center; justify-content: center; overflow-y: auto; }
-        .service-modal-content { background: linear-gradient(135deg, #111, #222); padding: 3rem; border-radius: 20px; border: 2px solid #ff1493; max-width: 800px; width: 90%; position: relative; max-height: 90vh; overflow-y: auto; }
-        .close-service { position: absolute; top: 15px; right: 20px; color: white; font-size: 2rem; cursor: pointer; z-index: 10; }
-        .service-detail-section h4 { color: #ff1493; font-size: 1.5rem; margin-bottom: 1rem; }
-        .service-detail-section h5 { color: #ff6b9d; font-size: 1.2rem; margin: 1.5rem 0 0.5rem 0; }
-        .service-features ul, .session-requirements ul { list-style: none; padding-left: 0; }
-        .service-features li, .session-requirements li { background: rgba(255,20,147,0.1); margin: 0.5rem 0; padding: 0.8rem; border-radius: 8px; border-left: 3px solid #ff1493; }
-        .pricing-breakdown { background: rgba(0,0,0,0.3); padding: 1.5rem; border-radius: 10px; margin: 1rem 0; }
-        .rate-item { display: flex; justify-content: space-between; align-items: center; padding: 0.8rem; margin: 0.5rem 0; background: rgba(255,20,147,0.1); border-radius: 8px; }
-        .rate-desc { font-size: 0.9rem; color: #ccc; font-style: italic; }
-        .activity-breakdown { background: rgba(0,0,0,0.3); padding: 1.5rem; border-radius: 10px; margin: 1rem 0; }
-        .activity-category { margin-bottom: 1.5rem; padding: 1rem; background: rgba(255,20,147,0.05); border-radius: 8px; border-left: 3px solid #ff1493; }
-        .activity-category h6 { color: #ff6b9d; font-size: 1.1rem; margin-bottom: 0.8rem; font-weight: bold; }
-        .activity-category ul { list-style: none; padding-left: 0; }
-        .activity-category li { background: rgba(255,20,147,0.08); margin: 0.3rem 0; padding: 0.6rem; border-radius: 5px; border-left: 2px solid #ff6b9d; font-size: 0.95rem; }
-        .booking-actions { display: flex; gap: 1rem; margin-top: 2rem; justify-content: center; }
-        .book-now-btn, .payment-btn { background: linear-gradient(135deg, #ff1493, #ff6b9d); color: white; border: none; padding: 1rem 2rem; border-radius: 8px; cursor: pointer; font-size: 1rem; transition: all 0.3s; }
-        .book-now-btn:hover, .payment-btn:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(255,20,147,0.4); }
-        
-        .gallery-folder { background: linear-gradient(135deg, #111, #222); padding: 4rem; border-radius: 20px; text-align: center; cursor: pointer; border: 2px solid #ff1493; max-width: 500px; margin: 0 auto; transition: all 0.5s; box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
-        .gallery-folder:hover { transform: scale(1.05) rotateY(5deg); box-shadow: 0 15px 35px rgba(255,20,147,0.4); }
-        .folder-icon { font-size: 4rem; margin-bottom: 1rem; animation: bounce 2s infinite; }
-        @keyframes bounce { 0%, 20%, 50%, 80%, 100% { transform: translateY(0); } 40% { transform: translateY(-10px); } 60% { transform: translateY(-5px); } }
-        .folder-lock { font-size: 2rem; margin-top: 1rem; }
-        .gallery-content { margin-top: 3rem; }
-        .gallery-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem; }
-        .gallery-item { position: relative; border-radius: 15px; overflow: hidden; cursor: pointer; border: 2px solid #ff1493; transition: all 0.3s; }
-        .gallery-item:hover { transform: scale(1.05) rotate(2deg); box-shadow: 0 10px 25px rgba(255,20,147,0.5); }
-        .gallery-item img { width: 100%; height: 250px; object-fit: cover; transition: all 0.3s; }
-        .gallery-item:hover img { transform: scale(1.1); }
-        .video-item { position: relative; }
-        .video-thumbnail { width: 100%; height: 250px; object-fit: cover; }
-        .play-button { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 3rem; color: white; text-shadow: 2px 2px 4px rgba(0,0,0,0.8); pointer-events: none; }
-        .lightbox-video { max-width: 90%; max-height: 90%; border-radius: 10px; }
-        .media-type { position: absolute; top: 10px; right: 10px; background: rgba(0,0,0,0.8); padding: 8px; border-radius: 8px; font-size: 1.2rem; }
-        
-        .booking-content { display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; }
-        .booking-form { background: linear-gradient(135deg, #111, #222); padding: 3rem; border-radius: 20px; border: 2px solid #ff1493; }
-        .booking-form input, .booking-form select, .booking-form textarea { width: 100%; padding: 1rem; margin-bottom: 1rem; background: #333; border: 2px solid #ff1493; border-radius: 8px; color: #fff; font-size: 1rem; transition: all 0.3s; }
-        .booking-form input:focus, .booking-form select:focus, .booking-form textarea:focus { border-color: #ff6b9d; box-shadow: 0 0 10px rgba(255,20,147,0.3); }
-        .booking-form button { background: linear-gradient(135deg, #ff1493, #ff6b9d); color: white; padding: 1rem 2rem; border: none; border-radius: 8px; cursor: pointer; font-size: 1.1rem; width: 100%; transition: all 0.3s; }
-        .booking-form button:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(255,20,147,0.4); }
-        .info-item { display: flex; align-items: flex-start; gap: 1rem; margin-bottom: 2rem; }
-        .info-item .icon { font-size: 1.5rem; }
-        
-        .testimonials { background: linear-gradient(135deg, #111, #0a0a0a); }
-        .testimonials-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem; }
-        .testimonial-card { background: linear-gradient(135deg, #222, #333); padding: 2rem; border-radius: 15px; border: 2px solid #ff1493; text-align: center; transition: all 0.3s; }
-        .testimonial-card:hover { transform: translateY(-5px); box-shadow: 0 10px 25px rgba(255,20,147,0.3); }
-        .stars { font-size: 1.5rem; margin-bottom: 1rem; }
-        .client-name { color: #ff1493; font-weight: bold; }
-        
-        .pricing-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 2rem; }
-        .pricing-card { background: linear-gradient(135deg, #111, #222); padding: 2.5rem; border-radius: 20px; border: 2px solid #ff1493; cursor: pointer; transition: all 0.5s; position: relative; overflow: hidden; }
-        .pricing-card:hover { transform: translateY(-10px) scale(1.02); box-shadow: 0 15px 35px rgba(255,20,147,0.4); }
-        .pricing-card.featured { border-color: #ff6b35; box-shadow: 0 0 20px rgba(255,107,53,0.3); }
-        .pricing-card.featured:hover { box-shadow: 0 15px 35px rgba(255,107,53,0.5); }
-        .service-badge { position: absolute; top: -15px; left: 25px; background: linear-gradient(135deg, #ff1493, #ff6b9d); color: white; padding: 8px 20px; border-radius: 20px; font-size: 0.9rem; font-weight: bold; }
-        .popular { background: linear-gradient(135deg, #ff6b35, #ff8c42); }
-        .premium { background: linear-gradient(135deg, #8e44ad, #9b59b6); }
-        .price { font-size: 2.5rem; color: #ff1493; font-weight: bold; margin: 1.5rem 0; text-align: center; }
-        .expand-icon { position: absolute; top: 25px; right: 25px; font-size: 1.8rem; color: #ff1493; transition: all 0.3s; }
-        .pricing-card.expanded .expand-icon { transform: rotate(45deg); }
-        .pricing-details { margin-top: 2rem; padding-top: 2rem; border-top: 1px solid #333; }
-        .service-category { margin-bottom: 2rem; }
-        .service-category h5 { color: #ff1493; margin-bottom: 1rem; font-size: 1.1rem; }
-        .payment-options { display: flex; gap: 1rem; margin-top: 1.5rem; }
-        .payment-options button { background: linear-gradient(135deg, #ff1493, #ff6b9d); color: white; border: none; padding: 0.8rem 1.5rem; border-radius: 8px; cursor: pointer; transition: all 0.3s; }
-        .payment-options button:hover { transform: translateY(-2px); }
-        
-        .contact-content { display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; }
-        .contact-item { display: flex; align-items: center; gap: 1rem; margin-bottom: 1.5rem; }
-        .contact-form { background: linear-gradient(135deg, #111, #222); padding: 3rem; border-radius: 20px; border: 2px solid #ff1493; }
-        .contact-form input, .contact-form select, .contact-form textarea { width: 100%; padding: 1rem; margin-bottom: 1rem; background: #333; border: 2px solid #ff1493; border-radius: 8px; color: #fff; transition: all 0.3s; }
-        .contact-form input:focus, .contact-form select:focus, .contact-form textarea:focus { border-color: #ff6b9d; box-shadow: 0 0 10px rgba(255,20,147,0.3); }
-        .contact-form button { background: linear-gradient(135deg, #ff1493, #ff6b9d); color: white; padding: 1rem 2rem; border: none; border-radius: 8px; cursor: pointer; width: 100%; font-size: 1.1rem; transition: all 0.3s; }
-        .contact-form button:hover { transform: translateY(-2px); }
-        
-        .hidden { display: none !important; }
-        
-        /* Auth Modal */
-        .auth-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 1000; display: flex; align-items: center; justify-content: center; }
-        .auth-modal-content { background: linear-gradient(135deg, #111, #222); padding: 3rem; border-radius: 20px; border: 2px solid #ff1493; max-width: 400px; width: 90%; position: relative; }
-        .close-auth { position: absolute; top: 15px; right: 20px; color: white; font-size: 2rem; cursor: pointer; }
-        .auth-form input { width: 100%; padding: 1rem; margin-bottom: 1rem; background: #333; border: 2px solid #ff1493; border-radius: 8px; color: #fff; }
-        .auth-buttons-modal { display: flex; gap: 1rem; margin-top: 1rem; }
-        .primary-btn, .secondary-btn { padding: 0.8rem 1.5rem; border: none; border-radius: 8px; cursor: pointer; transition: all 0.3s; }
-        .primary-btn { background: linear-gradient(135deg, #ff1493, #ff6b9d); color: white; }
-        .secondary-btn { background: transparent; color: #ff1493; border: 2px solid #ff1493; }
-        .full-width { width: 100%; }
-        .back-btn { background: none; border: none; color: #ff1493; cursor: pointer; }
-        
-        /* Admin Panel */
-        .admin-panel { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 1000; display: flex; align-items: center; justify-content: center; }
-        .admin-panel-content { background: linear-gradient(135deg, #111, #222); padding: 3rem; border-radius: 20px; border: 2px solid #ff1493; max-width: 600px; width: 90%; position: relative; }
-        .close-admin { position: absolute; top: 15px; right: 20px; color: white; font-size: 2rem; cursor: pointer; }
-        .admin-section { margin-bottom: 2rem; padding: 1rem; background: #333; border-radius: 10px; }
-        .admin-btn { background: linear-gradient(135deg, #ff1493, #ff6b9d); color: white; border: none; padding: 0.5rem 1rem; border-radius: 5px; cursor: pointer; margin: 0.5rem; }
-        
-        .lightbox { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 1000; align-items: center; justify-content: center; }
-        .lightbox-content { position: relative; max-width: 90%; max-height: 90%; }
-        .lightbox-img { max-width: 100%; max-height: 100%; border-radius: 10px; }
-        .close-lightbox { position: absolute; top: -50px; right: 0; color: white; font-size: 2.5rem; cursor: pointer; background: rgba(0,0,0,0.7); padding: 10px 15px; border-radius: 50%; }
-        
-        .payment-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 1000; align-items: center; justify-content: center; }
-        .payment-modal.hidden { display: none; }
-        .payment-modal:not(.hidden) { display: flex; }
-        .payment-modal-content { background: linear-gradient(135deg, #111, #222); padding: 3rem; border-radius: 20px; border: 2px solid #ff1493; max-width: 500px; width: 90%; position: relative; }
-        .close-payment { position: absolute; top: 15px; right: 20px; color: white; font-size: 2rem; cursor: pointer; }
-        .amount-display { font-size: 3rem; color: #ff1493; text-align: center; margin-bottom: 2rem; font-weight: bold; }
-        .paypal-email-container label, .bitcoin-address-container label { display: block; margin-bottom: 0.5rem; color: #ff1493; }
-        .email-box, .address-box { display: flex; gap: 10px; margin: 1rem 0; }
-        .email-box input, .address-box input { flex: 1; padding: 15px; background: #333; border: 2px solid #ff1493; color: #fff; border-radius: 8px; }
-        .copy-btn { background: linear-gradient(135deg, #ff1493, #ff6b9d); color: white; border: none; padding: 15px 20px; border-radius: 8px; cursor: pointer; transition: all 0.3s; }
-        .copy-btn:hover { transform: translateY(-2px); }
-        
-        .footer { background: linear-gradient(135deg, #111, #0a0a0a); padding: 4rem 0 2rem; border-top: 2px solid #ff1493; margin-top: 4rem; }
-        .footer-content { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 3rem; margin-bottom: 3rem; }
-        .footer-section h3, .footer-section h4 { color: #ff1493; margin-bottom: 1rem; }
-        .footer-section ul { list-style: none; }
-        .footer-section li { margin-bottom: 0.5rem; }
-        .footer-section a { color: #fff; text-decoration: none; transition: color 0.3s; }
-        .footer-section a:hover { color: #ff1493; }
-        .footer-bottom { text-align: center; padding-top: 2rem; border-top: 1px solid #333; }
-        
-        .scroll-top { position: fixed; bottom: 30px; right: 30px; background: linear-gradient(135deg, #ff1493, #ff6b9d); color: white; border: none; padding: 15px; border-radius: 50%; cursor: pointer; font-size: 1.2rem; opacity: 0; transition: all 0.3s; z-index: 100; box-shadow: 0 4px 15px rgba(255,20,147,0.4); }
-        .scroll-top.show { opacity: 1; }
-        .scroll-top:hover { transform: translateY(-3px); box-shadow: 0 6px 20px rgba(255,20,147,0.6); }
-        
+        @keyframes float {
+          0%, 100% { transform: translateY(0px) rotate(0deg); }
+          50% { transform: translateY(-20px) rotate(180deg); }
+        }
+        @keyframes pulse {
+          0%, 100% { transform: scale(1); }
+          50% { transform: scale(1.1); }
+        }
+        .navbar { position: fixed; top: 0; width: 100%; background: rgba(0,0,0,0.9); z-index: 1000; padding: 15px 0; }
+        .nav-container { display: flex; justify-content: space-between; align-items: center; max-width: 1200px; margin: 0 auto; padding: 0 20px; }
+        .left-section { display: flex; align-items: center; }
+        .logo { color: #ff1493; font-size: 1.8rem; font-weight: bold; margin: 0; }
+        .mobile-menu-btn { display: none; }
+        .hero { height: 100vh; display: flex; align-items: center; justify-content: center; text-align: center; color: white; position: relative; }
+        .hero::before { content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y="50" font-size="20" fill="%23ff1493" opacity="0.1">⛓️🔥💋⛓️🔥💋</text></svg>'); }
+        .hero-content { position: relative; z-index: 2; }
+        .hero-content h1 { font-size: 3rem; margin-bottom: 20px; text-shadow: 2px 2px 4px rgba(0,0,0,0.5); }
+        .hero-content p { font-size: 1.2rem; margin-bottom: 30px; text-shadow: 1px 1px 2px rgba(0,0,0,0.5); }
+        .cta-button { display: inline-block; padding: 15px 30px; background: linear-gradient(45deg, #ff1493, #ff69b4); color: white; text-decoration: none; border-radius: 25px; animation: pulse 2s infinite; }
+        .cta-button:hover { animation: none; transform: scale(1.05); }
+        .about, .services, .gallery, .pricing, .booking, .contact, .testimonials, .dungeon { padding: 80px 0; }
+        .dungeon { background: linear-gradient(135deg, #1a1a1a, #2d1b2d); color: white; }
+        .dungeon-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px; margin-top: 50px; }
+        .dungeon-card { background: rgba(255,255,255,0.1); padding: 30px; border-radius: 15px; border: 2px solid #ff1493; backdrop-filter: blur(10px); position: relative; overflow: hidden; }
+        .dungeon-card h3 { color: #ff1493; margin-bottom: 15px; }
+        .dungeon-image { width: 100%; height: 200px; object-fit: cover; border-radius: 10px; margin-bottom: 15px; border: 2px solid #8b008b; }
+        .dungeon-card:hover .dungeon-image { transform: scale(1.05); transition: transform 0.3s ease; }
+        .dungeon-rules { background: rgba(139,0,139,0.2); padding: 40px; border-radius: 15px; margin-top: 50px; border: 2px solid #8b008b; }
+        .dungeon-rules h3 { color: #ff1493; margin-bottom: 20px; }
+        .dungeon-rules ul { list-style: none; padding: 0; }
+        .dungeon-rules li { padding: 10px 0; border-bottom: 1px solid rgba(255,20,147,0.3); }
+        .dungeon-rules li:before { content: '⚙️'; margin-right: 10px; }
+        .container { max-width: 1200px; margin: 0 auto; padding: 0 20px; }
+        .services-grid, .pricing-grid, .testimonials-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px; margin-top: 50px; }
+        .service-card, .pricing-card, .testimonial-card { background: white; padding: 30px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); border: 2px solid transparent; transition: all 0.3s ease; }
+        .service-card:hover, .pricing-card:hover { border-color: #ff1493; transform: translateY(-5px); box-shadow: 0 15px 40px rgba(255,20,147,0.3); }
+        .service-card h3 { color: #ff1493; font-weight: bold; }
+        .gallery-folder { background: linear-gradient(135deg, #ff1493, #8b008b); color: white; padding: 40px; border-radius: 15px; text-align: center; cursor: pointer; box-shadow: 0 10px 30px rgba(255,20,147,0.3); }
+        .gallery-folder:hover { transform: scale(1.05); }
+        .gallery-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 20px; margin-top: 20px; }
+        .gallery-item { cursor: pointer; border-radius: 10px; overflow: hidden; }
+        .gallery-item img { width: 100%; height: 200px; object-fit: cover; }
+        .booking-form { background: white; padding: 40px; border-radius: 15px; max-width: 500px; margin: 0 auto; }
+        .booking-form input, .booking-form select { width: 100%; padding: 15px; margin-bottom: 20px; border: 2px solid #e0e0e0; border-radius: 10px; }
+        .booking-form button { width: 100%; padding: 15px; background: linear-gradient(45deg, #ff1493, #ff69b4); color: white; border: none; border-radius: 10px; cursor: pointer; }
+        .contact { background: linear-gradient(135deg, #1a1a2e, #16213e); color: white; }
+        .contact-item { display: flex; align-items: center; gap: 15px; margin-bottom: 20px; }
+        .contact-item .icon { font-size: 1.5rem; }
+        .footer { background: #000; color: white; padding: 40px 0; text-align: center; }
+        .footer p { margin: 0; }
+        .footer p:before { content: '© 2026 '; }
+        .testimonials { background: #f8f9fa; }
+        .testimonial-card .stars { color: #ffd700; font-size: 1.2rem; margin-bottom: 15px; }
+        .testimonial-card .client-name { font-style: italic; color: #666; }
+        .pricing-card .price { font-size: 2rem; color: #ff1493; font-weight: bold; margin: 20px 0; }
+        .pricing-card ul { list-style: none; padding: 0; }
+        .pricing-card li { padding: 8px 0; border-bottom: 1px solid #eee; }
+        .pricing-card li:before { content: '🔥'; margin-right: 8px; }
+        .testimonial-card { position: relative; overflow: hidden; }
+        .testimonial-card:before { content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; background: linear-gradient(45deg, transparent, rgba(255,20,147,0.1), transparent); transform: rotate(45deg); transition: all 0.5s; opacity: 0; }
+        .testimonial-card:hover:before { opacity: 1; animation: shimmer 1s ease-in-out; }
+        @keyframes shimmer { 0% { transform: translateX(-100%) rotate(45deg); } 100% { transform: translateX(100%) rotate(45deg); } }
         @media (max-width: 768px) {
-          .mobile-menu-btn { display: block; }
-          .nav-wrapper { display: none; position: absolute; top: 100%; left: 0; width: 100%; background: #000; border: 1px solid #ff1493; }
-          .nav-menu { flex-direction: column; gap: 0; }
-          .nav-menu li { border-bottom: 1px solid #333; text-align: center; }
-          .hero-content h1 { font-size: 2.5rem; }
-          .hero { padding: 4rem 0; }
-          .services-grid { grid-template-columns: 1fr; }
-          .booking-content { grid-template-columns: 1fr; }
-          .contact-content { grid-template-columns: 1fr; }
-          .pricing-grid { grid-template-columns: 1fr; }
-          .testimonials-grid { grid-template-columns: 1fr; }
-          .about-text ul { flex-direction: column; align-items: center; }
-          .footer-content { grid-template-columns: 1fr; text-align: center; }
-          .payment-options { flex-direction: column; }
+          .mobile-menu-btn { display: block !important; }
+          .hero-content h1 { font-size: 2rem; }
+          .services-grid, .pricing-grid, .testimonials-grid { grid-template-columns: 1fr; }
         }
       `}</style>
     </>
