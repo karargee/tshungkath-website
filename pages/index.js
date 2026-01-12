@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useInView } from 'react-intersection-observer'
 import Link from 'next/link'
-import PaymentGateway from '../components/PaymentGateway'
+// import PaymentGateway from '../components/PaymentGateway'
 
 export default function Home() {
   const [authModal, setAuthModal] = useState(false)
@@ -251,6 +251,118 @@ export default function Home() {
       <section id="home" className="hero">
         <div className="hero-content">
           <motion.h1 className="main-title" initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ duration: 1, delay: 0.5 }}>TshungKath</motion.h1>
+          <motion.p initial={{ y: 50, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ duration: 0.8, delay: 0.8 }}>
+            🔥 Dominant trans mistress ready to explore your deepest fantasies and push your limits. Submit to my control and experience true pleasure through pain and obedience. 💋
+          </motion.p>
+          <motion.a href="#contact" className="cta-button" initial={{ y: 50, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ duration: 0.8, delay: 1 }}>
+            Get In Touch
+          </motion.a>
+        </div>
+      </section>
+
+      {/* Services */}
+      <section id="services" className="services">
+        <div className="container">
+          <h2 className="premium-title">Premium Services</h2>
+          <div className="services-grid">
+            {[
+              { title: "🔥 Online Domination", desc: "Intense cam sessions where I control every move you make" },
+              { title: "👗 Sissy Transformation", desc: "Turn you into my perfect little slut through complete feminization" },
+              { title: "⛓️ BDSM Sessions", desc: "Real domination with toys, restraints, and punishment" }
+            ].map((service, i) => (
+              <div key={i} className="service-card">
+                <h3>{service.title}</h3>
+                <p>{service.desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Dungeon */}
+      <section id="dungeon" className="dungeon">
+        <div className="container">
+          <h2>🏰 My Private Dungeon</h2>
+          <div className="dungeon-grid">
+            {[
+              { emoji: "⛓️", title: "Restraint Station", desc: "Professional bondage equipment" },
+              { emoji: "🔥", title: "Impact Play Area", desc: "Paddles, floggers, whips, and canes" },
+              { emoji: "🎭", title: "Transformation Chamber", desc: "Full sissy makeover station" }
+            ].map((item, i) => (
+              <div key={i} className="dungeon-card">
+                <div className="dungeon-placeholder">{item.emoji}</div>
+                <h3>{item.title}</h3>
+                <p>{item.desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Contact */}
+      <section id="contact" className="contact">
+        <div className="container">
+          <h2>💋 Get In Touch</h2>
+          <div className="contact-info">
+            <div className="contact-item">
+              <span className="icon">📧</span>
+              <span>kathtri57@gmail.com</span>
+            </div>
+            <div className="contact-item">
+              <span className="icon">🔥</span>
+              <span>Available 24/7 for your submission</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Live Chat */}
+      <button onClick={() => setLiveChatOpen(!liveChatOpen)} style={{
+        position: 'fixed', bottom: '20px', right: '20px', width: '60px', height: '60px',
+        borderRadius: '50%', background: 'linear-gradient(45deg, #ff1493, #ff69b4)',
+        border: 'none', color: 'white', fontSize: '24px', cursor: 'pointer'
+      }}>💬</button>
+
+      <style jsx>{`
+        @keyframes gradientShift {
+          0% { background-position: 0% 50%; }
+          50% { background-position: 100% 50%; }
+          100% { background-position: 0% 50%; }
+        }
+        .navbar { position: fixed; top: 0; width: 100%; background: rgba(0,0,0,0.9); z-index: 1000; padding: 15px 0; }
+        .nav-container { display: flex; justify-content: space-between; align-items: center; max-width: 1200px; margin: 0 auto; padding: 0 20px; }
+        .left-section { display: flex; align-items: center; }
+        .logo { color: #ff1493; font-size: 1.8rem; font-weight: bold; margin: 0; }
+        .mobile-menu-btn { display: none; }
+        .hero { height: 100vh; display: flex; align-items: center; justify-content: center; text-align: center; color: white; }
+        .hero-content h1 { font-size: 3rem; margin-bottom: 20px; }
+        .hero-content p { font-size: 1.2rem; margin-bottom: 30px; max-width: 600px; }
+        .cta-button { display: inline-block; padding: 15px 30px; background: linear-gradient(45deg, #ff1493, #ff69b4); color: white; text-decoration: none; border-radius: 25px; }
+        .services, .dungeon, .contact { padding: 80px 0; }
+        .services { background: white; }
+        .dungeon { background: linear-gradient(135deg, #1a1a1a, #2d1b2d); color: white; }
+        .contact { background: linear-gradient(135deg, #1a1a2e, #16213e); color: white; }
+        .container { max-width: 1200px; margin: 0 auto; padding: 0 20px; }
+        .services h2, .dungeon h2, .contact h2 { text-align: center; font-size: 2.5rem; margin-bottom: 50px; }
+        .services h2 { color: #ff1493; }
+        .dungeon h2, .contact h2 { color: #ff1493; }
+        .services-grid, .dungeon-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px; }
+        .service-card, .dungeon-card { background: white; padding: 30px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); border: 2px solid #ff1493; }
+        .dungeon-card { background: rgba(255,255,255,0.1); color: white; }
+        .service-card h3, .dungeon-card h3 { color: #ff1493; margin-bottom: 15px; }
+        .dungeon-placeholder { width: 100%; height: 150px; display: flex; align-items: center; justify-content: center; font-size: 4rem; background: rgba(139,0,139,0.3); border-radius: 10px; margin-bottom: 15px; }
+        .contact-info { text-align: center; }
+        .contact-item { display: flex; align-items: center; justify-content: center; gap: 15px; margin-bottom: 20px; font-size: 1.2rem; }
+        .contact-item .icon { font-size: 1.5rem; }
+        @media (max-width: 768px) {
+          .mobile-menu-btn { display: block !important; }
+          .hero-content h1 { font-size: 2rem; }
+          .services-grid, .dungeon-grid { grid-template-columns: 1fr; }
+        }
+      `}</style>
+    </>
+  )
+}tial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ duration: 1, delay: 0.5 }}>TshungKath</motion.h1>
           <motion.p initial={{ y: 50, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ duration: 0.8, delay: 0.8 }}>
             🔥 Dominant trans mistress ready to explore your deepest fantasies and push your limits. Submit to my control and experience true pleasure through pain and obedience. 💋
           </motion.p>
