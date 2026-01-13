@@ -15,6 +15,52 @@ export default function Home() {
   ])
   const [newMessage, setNewMessage] = useState('')
   const [serviceModal, setServiceModal] = useState({ open: false, service: '' })
+  const [paymentModal, setPaymentModal] = useState({ open: false, service: '', price: '', selectedOption: '' })
+
+  const servicePricing = {
+    'Online Domination': [
+      { name: 'JOI Session (15min)', price: 60 },
+      { name: 'CEI Training (20min)', price: 75 },
+      { name: 'Humiliation Session (30min)', price: 100 },
+      { name: 'Orgasm Control (45min)', price: 140 },
+      { name: 'Role-play Session (60min)', price: 180 }
+    ],
+    'Sissy Transformation': [
+      { name: 'Makeup Tutorial', price: 80 },
+      { name: 'Walking in Heels Training', price: 60 },
+      { name: 'Voice Feminization', price: 90 },
+      { name: 'Outfit Styling Session', price: 70 },
+      { name: 'Complete Transformation', price: 300 }
+    ],
+    'Financial Domination': [
+      { name: 'Tribute $25', price: 25 },
+      { name: 'Tribute $50', price: 50 },
+      { name: 'Tribute $100', price: 100 },
+      { name: 'Wallet Inspection', price: 150 },
+      { name: 'Budget Control Session', price: 200 }
+    ],
+    'Foot Worship': [
+      { name: 'Foot Massage Instructions', price: 40 },
+      { name: 'Toe Sucking Training', price: 50 },
+      { name: 'Shoe Worship Session', price: 45 },
+      { name: 'Custom Foot Photos (5 pics)', price: 60 },
+      { name: 'Worn Socks/Stockings', price: 80 }
+    ],
+    'Chastity Training': [
+      { name: 'Device Fitting Guidance', price: 75 },
+      { name: 'Weekly Lock-up Program', price: 120 },
+      { name: 'Monthly Control Package', price: 400 },
+      { name: 'Key Holding Service', price: 200 },
+      { name: 'Release Training Session', price: 100 }
+    ],
+    'Private Mobile Dungeon': [
+      { name: 'Basic BDSM Session (2hr)', price: 600 },
+      { name: 'Advanced Bondage (3hr)', price: 850 },
+      { name: 'Medical Play Session (2hr)', price: 700 },
+      { name: 'Sissy Training (4hr)', price: 1000 },
+      { name: 'Overnight Experience (8hr)', price: 2000 }
+    ]
+  }
 
   const serviceDetails = {
     'Online Domination': {
@@ -123,8 +169,8 @@ export default function Home() {
           zIndex: 50000, boxShadow: '0 4px 12px rgba(0,0,0,0.15)'
         }}>
           <ul style={{ listStyle: 'none', margin: 0, padding: 0 }}>
-            {['🏠 Home', '👤 About', '💼 Services', '💰 Pricing', '📅 Book Now', '📞 Contact'].map((item, i) => (
-              <li key={i}><a href={['#home','#about','#services','#pricing','#booking','#contact'][i]} onClick={() => setMobileMenuOpen(false)} style={{
+            {['🏠 Home', '👤 About', '💼 Services', '🔥 Community', '💰 Pricing', '📅 Book Now', '📞 Contact'].map((item, i) => (
+              <li key={i}><a href={['#home','#about','#services','/community','#pricing','#booking','#contact'][i]} onClick={() => setMobileMenuOpen(false)} style={{
                 display: 'block', padding: '12px 16px', color: '#333', textDecoration: 'none',
                 borderBottom: '1px solid #eee', fontSize: '14px'
               }}>{item}</a></li>
@@ -176,6 +222,21 @@ export default function Home() {
         <div className="nav-container">
           <h1 className="logo">TshungKath</h1>
           <div className="nav-right">
+            <div className="header-social">
+              <a href="/community" style={{
+                color: 'white', fontSize: '18px', marginRight: '15px', textDecoration: 'none',
+                background: 'rgba(255,20,147,0.2)', padding: '5px 10px', borderRadius: '5px'
+              }}>🔥 Community</a>
+              <a href="https://twitter.com/tshungkatherine" target="_blank" style={{
+                color: 'white', fontSize: '18px', marginRight: '10px', textDecoration: 'none'
+              }}>𝕏</a>
+              <a href="https://t.me/tshungkath10" target="_blank" style={{
+                color: 'white', fontSize: '18px', marginRight: '10px', textDecoration: 'none'
+              }}>📱</a>
+              <a href="https://snapchat.com/add/tskathy4subs" target="_blank" style={{
+                color: 'white', fontSize: '18px', marginRight: '15px', textDecoration: 'none'
+              }}>👻</a>
+            </div>
             {user ? (
               <span style={{color: 'white', marginRight: '15px'}}>Welcome, {user.name || user.email}</span>
             ) : (
@@ -227,9 +288,15 @@ export default function Home() {
               { key: 'Sissy Transformation', title: '👗 Sissy Transformation', desc: 'Turn you into my perfect little slut through complete feminization' },
               { key: 'Financial Domination', title: '💰 Financial Domination', desc: 'Drain your wallet while you beg for more abuse' },
               { key: 'Foot Worship', title: '👠 Foot Worship', desc: 'Worship my perfect feet like the pathetic sub you are' },
-              { key: 'Private Mobile Dungeon', title: '🚐 Mobile Dungeon', desc: 'I bring my fully equipped dungeon directly to you' }
+              { key: 'Private Mobile Dungeon', title: '🚐 Mobile Dungeon', desc: 'I bring my fully equipped dungeon directly to you', link: '/mobile-dungeon' }
             ].map((service, i) => (
-              <div key={i} className="service-card" onClick={() => setServiceModal({ open: true, service: service.key })}>
+              <div key={i} className="service-card" onClick={() => {
+                if (service.link) {
+                  window.open(service.link, '_blank')
+                } else {
+                  setServiceModal({ open: true, service: service.key })
+                }
+              }}>
                 <h3>{service.title}</h3>
                 <p>{service.desc}</p>
                 <div className="service-overlay">Click for Details</div>
@@ -318,24 +385,44 @@ export default function Home() {
         <div className="container">
           <h2>💰 Service Rates</h2>
           <div className="pricing-grid">
-            {[
-              { title: "🔥 Online Domination Sessions", price: "$150 - $750", features: ["HD cam domination with full control", "JOI & CEI instructions - I control your orgasms", "Humiliation & degradation sessions", "Custom fetish content creation", "Task assignments between sessions"] },
-              { title: "⛓️ BDSM Training & Pain Play", price: "$300 - $1500", features: ["Pain tolerance training protocols", "Slave position and behavior training", "Impact play instruction (paddles, whips)", "Bondage and restraint techniques", "Safe word establishment and limits"] },
-              { title: "👗 Complete Sissy Transformation", price: "$500 - $2000", features: ["Full feminization makeover process", "Makeup tutorials and dress training", "Voice coaching and mannerism training", "Public humiliation preparation", "Wardrobe consultation and shopping"] },
-              { title: "💰 Financial Domination & Control", price: "$50 - $5000+", features: ["Tribute demands and wallet inspection", "Complete budget control and monitoring", "Shopping sprees on your expense", "Financial games and blackmail scenarios", "Real-time money transfer sessions"] },
-              { title: "👠 Foot Worship & Sole Training", price: "$100 - $300", features: ["Proper foot massage instruction", "Toe sucking and sole licking training", "Shoe and sock worship sessions", "Custom foot content (photos/videos)", "Worn item sales for devoted slaves"] },
-              { title: "🔒 Chastity Control & Denial", price: "$200 - $2000/mo", features: ["Device selection and fitting guidance", "Long-term key holding services", "Orgasm scheduling and denial training", "Daily check-in requirements", "Release task assignments and rewards"] },
-              { title: "🚐 Private Mobile Dungeon", price: "$800 - $2500", features: ["Fully equipped mobile dungeon delivery", "Discreet setup at your location", "Professional BDSM equipment included", "Complete privacy and discretion", "Flexible location arrangements"] },
-              { title: "📱 Custom Content & Media", price: "$25 - $500", features: ["Personalized video messages", "Custom photo sets and galleries", "Audio domination recordings", "Worn clothing and accessory sales", "Special request fulfillment"] },
-              { title: "🎭 Role-Play & Fantasy Sessions", price: "$200 - $600", features: ["Teacher/student power dynamics", "Boss/employee domination scenarios", "Medical examination role-plays", "Age regression and mommy play", "Custom fantasy scenario creation"] },
-              { title: "💉 Medical Play & Examination", price: "$400 - $1200", features: ["Professional medical equipment use", "Intimate examination procedures", "Catheter and sound insertion training", "Medical restraint and positioning", "Clinical humiliation scenarios"] },
-              { title: "🎆 Extreme & Advanced Sessions", price: "$600 - $3000", features: ["Needle play and piercing sessions", "Electro-stimulation training", "Breath play and edge control", "Extreme bondage and suspension", "Advanced pain tolerance building"] },
-              { title: "📅 Subscription & Ongoing Control", price: "$300 - $1500/mo", features: ["24/7 text message domination", "Daily task assignments and check-ins", "Weekly video call sessions", "Lifestyle control and monitoring", "Priority booking and discounts"] }
-            ].map((plan, i) => (
+            {Object.keys(servicePricing).map((serviceKey, i) => (
               <div key={i} className="pricing-card">
-                <h3>{plan.title}</h3>
-                <div className="price">{plan.price}</div>
-                <ul>{plan.features.map((f, j) => <li key={j}>{f}</li>)}</ul>
+                <h3>{serviceKey}</h3>
+                <div style={{ marginBottom: '20px' }}>
+                  <select 
+                    onChange={(e) => {
+                      const selectedOption = servicePricing[serviceKey].find(opt => opt.name === e.target.value)
+                      if (selectedOption) {
+                        setPaymentModal({ 
+                          open: true, 
+                          service: serviceKey, 
+                          price: selectedOption.price, 
+                          selectedOption: selectedOption.name 
+                        })
+                      }
+                    }}
+                    style={{
+                      width: '100%', padding: '12px', borderRadius: '8px', border: '2px solid #ff1493',
+                      background: 'white', fontSize: '16px', cursor: 'pointer'
+                    }}
+                  >
+                    <option value="">Select Service & Pay Now</option>
+                    {servicePricing[serviceKey].map((option, j) => (
+                      <option key={j} value={option.name}>
+                        {option.name} - ${option.price > 0 ? option.price : 'Custom'}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <button 
+                  onClick={() => setServiceModal({ open: true, service: serviceKey })}
+                  style={{
+                    width: '100%', padding: '12px', background: 'linear-gradient(45deg, #ff1493, #ff69b4)',
+                    color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', fontWeight: 'bold'
+                  }}
+                >
+                  View Details
+                </button>
               </div>
             ))}
           </div>
@@ -411,6 +498,68 @@ export default function Home() {
         </div>
       </section>
 
+      {/* Payment Gateway Modal */}
+      {paymentModal.open && (
+        <div onClick={() => setPaymentModal({ open: false, service: '', price: '', selectedOption: '' })} style={{
+          position: 'fixed', top: 0, left: 0, width: '100%', height: '100%',
+          background: 'rgba(0,0,0,0.8)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 10001
+        }}>
+          <div onClick={(e) => e.stopPropagation()} style={{
+            background: 'white', borderRadius: '20px', padding: '40px', maxWidth: '500px', width: '90%'
+          }}>
+            <h2 style={{ color: '#ff1493', textAlign: 'center', marginBottom: '20px' }}>💳 Payment</h2>
+            <div style={{ textAlign: 'center', marginBottom: '30px' }}>
+              <h3>{paymentModal.selectedOption}</h3>
+              <div style={{ fontSize: '2rem', color: '#ff1493', fontWeight: 'bold' }}>
+                ${paymentModal.price > 0 ? paymentModal.price : 'Custom Amount'}
+              </div>
+            </div>
+            
+            <div style={{ display: 'grid', gap: '15px' }}>
+              <button onClick={() => {
+                if (paymentModal.price === 0) {
+                  const amount = prompt('Enter tribute amount:')
+                  if (amount) alert(`💳 Redirecting to card payment for $${amount}...`)
+                } else {
+                  alert(`💳 Redirecting to card payment for $${paymentModal.price}...`)
+                }
+              }} style={{
+                background: 'linear-gradient(45deg, #4169E1, #6495ED)', color: 'white',
+                border: 'none', padding: '15px', borderRadius: '10px', fontSize: '16px', cursor: 'pointer'
+              }}>💳 Pay with Card</button>
+              
+              <button onClick={() => {
+                if (paymentModal.price === 0) {
+                  const amount = prompt('Enter tribute amount:')
+                  if (amount) alert(`💰 Redirecting to PayPal for $${amount}...`)
+                } else {
+                  alert(`💰 Redirecting to PayPal for $${paymentModal.price}...`)
+                }
+              }} style={{
+                background: 'linear-gradient(45deg, #0070ba, #003087)', color: 'white',
+                border: 'none', padding: '15px', borderRadius: '10px', fontSize: '16px', cursor: 'pointer'
+              }}>💰 PayPal</button>
+              
+              <button onClick={() => {
+                const btcAddress = 'bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh'
+                const amount = paymentModal.price > 0 ? paymentModal.price : prompt('Enter tribute amount:')
+                if (amount) {
+                  alert(`₿ Bitcoin Payment\n\nSend $${amount} worth of Bitcoin to:\n${btcAddress}\n\nThen contact me with transaction ID.`)
+                }
+              }} style={{
+                background: 'linear-gradient(45deg, #f7931a, #ffb347)', color: 'white',
+                border: 'none', padding: '15px', borderRadius: '10px', fontSize: '16px', cursor: 'pointer'
+              }}>₿ Bitcoin</button>
+            </div>
+            
+            <button onClick={() => setPaymentModal({ open: false, service: '', price: '', selectedOption: '' })} style={{
+              background: '#666', color: 'white', border: 'none', padding: '10px 20px',
+              borderRadius: '10px', cursor: 'pointer', width: '100%', marginTop: '20px'
+            }}>Cancel</button>
+          </div>
+        </div>
+      )}
+
       {/* Service Details Modal */}
       {serviceModal.open && (
         <div onClick={() => setServiceModal({ open: false, service: '' })} style={{
@@ -445,14 +594,26 @@ export default function Home() {
                   </ul>
                 </div>
                 <div style={{ textAlign: 'center', marginTop: '30px' }}>
+                  <h3 style={{ color: '#ff1493', marginBottom: '20px' }}>Select Your Option:</h3>
+                  <div style={{ display: 'grid', gap: '15px', marginBottom: '20px' }}>
+                    {servicePricing[serviceModal.service]?.map((option, i) => (
+                      <button key={i} onClick={() => setPaymentModal({ open: true, service: serviceModal.service, price: option.price, selectedOption: option.name })} style={{
+                        background: 'linear-gradient(45deg, #ff1493, #ff69b4)', color: 'white',
+                        border: 'none', padding: '15px 20px', borderRadius: '10px',
+                        fontSize: '16px', cursor: 'pointer', fontWeight: 'bold'
+                      }}>
+                        {option.name} - ${option.price > 0 ? option.price : 'Custom'}
+                      </button>
+                    ))}
+                  </div>
                   <button onClick={() => {
                     setServiceModal({ open: false, service: '' })
                     document.getElementById('booking').scrollIntoView({ behavior: 'smooth' })
                   }} style={{
-                    background: 'linear-gradient(45deg, #ff1493, #ff69b4)', color: 'white',
-                    border: 'none', padding: '15px 30px', borderRadius: '25px',
-                    fontSize: '18px', cursor: 'pointer', fontWeight: 'bold'
-                  }}>Book This Service 💋</button>
+                    background: '#666', color: 'white',
+                    border: 'none', padding: '10px 20px', borderRadius: '10px',
+                    fontSize: '14px', cursor: 'pointer'
+                  }}>Or Book Custom Session</button>
                 </div>
               </>
             )}
