@@ -762,51 +762,46 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Pricing */}
+      {/* Service Rates Section */}
       <section id="pricing" className="pricing" style={{
         backgroundImage: 'linear-gradient(rgba(248,249,250,0.95), rgba(248,249,250,0.95)), url("/SzU6IOIX.jpeg")',
         backgroundSize: 'cover', backgroundPosition: 'center'
       }}>
         <div className="container">
-          <h2>💰 Service Rates</h2>
-          <div className="pricing-grid">
+          <h2>💎 Premium Service Rates</h2>
+          <div className="service-rates-grid">
             {Object.keys(servicePricing).map((serviceKey, i) => (
-              <div key={i} className="pricing-card">
-                <h3>{serviceKey}</h3>
-                <div style={{ marginBottom: '20px' }}>
-                  <select 
-                    onChange={(e) => {
-                      const selectedOption = servicePricing[serviceKey].find(opt => opt.name === e.target.value)
-                      if (selectedOption) {
-                        setPaymentModal({ 
+              <div key={i} className="service-rate-card">
+                <div className="service-rate-header">
+                  <h3>{serviceKey}</h3>
+                  <div className="service-rate-icon">🔥</div>
+                </div>
+                <div className="service-rate-options">
+                  {servicePricing[serviceKey].map((option, j) => (
+                    <div key={j} className="service-rate-item">
+                      <div className="service-rate-info">
+                        <span className="service-rate-name">{option.name}</span>
+                        <span className="service-rate-price">${option.price}</span>
+                      </div>
+                      <button 
+                        className="pay-now-btn"
+                        onClick={() => setPaymentModal({ 
                           open: true, 
                           service: serviceKey, 
-                          price: selectedOption.price, 
-                          selectedOption: selectedOption.name 
-                        })
-                      }
-                    }}
-                    style={{
-                      width: '100%', padding: '12px', borderRadius: '8px', border: '2px solid #ff1493',
-                      background: 'white', fontSize: '16px', cursor: 'pointer'
-                    }}
-                  >
-                    <option value="">Select Service & Pay Now</option>
-                    {servicePricing[serviceKey].map((option, j) => (
-                      <option key={j} value={option.name}>
-                        {option.name} - ${option.price > 0 ? option.price : 'Custom'}
-                      </option>
-                    ))}
-                  </select>
+                          price: option.price, 
+                          selectedOption: option.name 
+                        })}
+                      >
+                        💳 Pay Now
+                      </button>
+                    </div>
+                  ))}
                 </div>
                 <button 
+                  className="view-details-btn" 
                   onClick={() => setServiceModal({ open: true, service: serviceKey })}
-                  style={{
-                    width: '100%', padding: '12px', background: 'linear-gradient(45deg, #ff1493, #ff69b4)',
-                    color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', fontWeight: 'bold'
-                  }}
                 >
-                  View Details
+                  📋 View Full Details
                 </button>
               </div>
             ))}
@@ -1413,7 +1408,24 @@ export default function Home() {
         .about h2, .services h2, .gallery h2, .testimonials h2, .pricing h2, .booking h2, .dungeon h2, .contact h2 { text-align: center; font-size: 2.5rem; margin-bottom: 50px; }
         .about h2, .services h2, .gallery h2, .testimonials h2, .pricing h2, .booking h2 { color: #ff1493; }
         .dungeon h2, .contact h2 { color: #ff1493; }
-        .services-grid, .testimonials-grid, .pricing-grid, .dungeon-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px; }
+        .service-rates-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 30px; }
+        .service-rate-card { background: rgba(255,255,255,0.95); padding: 30px; border-radius: 20px; box-shadow: 0 15px 40px rgba(0,0,0,0.1); border: 3px solid transparent; transition: all 0.4s ease; position: relative; overflow: hidden; backdrop-filter: blur(15px); }
+        .service-rate-card::before { content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%; background: linear-gradient(90deg, transparent, rgba(255,20,147,0.1), transparent); transition: left 0.6s ease; }
+        .service-rate-card:hover::before { left: 100%; }
+        .service-rate-card:hover { border-color: #ff1493; transform: translateY(-15px) scale(1.02); box-shadow: 0 25px 60px rgba(255,20,147,0.3); }
+        .service-rate-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; padding-bottom: 15px; border-bottom: 2px solid #ff1493; }
+        .service-rate-header h3 { color: #ff1493; font-size: 1.4rem; margin: 0; font-weight: bold; }
+        .service-rate-icon { font-size: 2rem; animation: pulse 2s infinite; }
+        .service-rate-options { margin-bottom: 25px; }
+        .service-rate-item { display: flex; justify-content: space-between; align-items: center; padding: 15px; margin-bottom: 10px; background: linear-gradient(135deg, #f8f9fa, #ffffff); border: 2px solid #e9ecef; border-radius: 12px; transition: all 0.3s ease; }
+        .service-rate-item:hover { border-color: #ff1493; background: linear-gradient(135deg, #fff5f8, #ffffff); transform: translateX(5px); box-shadow: 0 8px 25px rgba(255,20,147,0.15); }
+        .service-rate-info { display: flex; flex-direction: column; }
+        .service-rate-name { font-weight: bold; color: #333; font-size: 1rem; margin-bottom: 3px; }
+        .service-rate-price { color: #ff1493; font-weight: bold; font-size: 1.3rem; }
+        .pay-now-btn { background: linear-gradient(45deg, #ff1493, #ff69b4); color: white; border: none; padding: 8px 16px; border-radius: 20px; cursor: pointer; font-weight: bold; font-size: 0.9rem; transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(255,20,147,0.3); }
+        .pay-now-btn:hover { transform: translateY(-2px) scale(1.05); box-shadow: 0 8px 25px rgba(255,20,147,0.5); }
+        .view-details-btn { width: 100%; padding: 15px; background: linear-gradient(135deg, #6c757d, #495057); color: white; border: none; border-radius: 12px; cursor: pointer; font-weight: bold; font-size: 1rem; transition: all 0.3s ease; }
+        .view-details-btn:hover { background: linear-gradient(135deg, #495057, #343a40); transform: translateY(-2px); box-shadow: 0 8px 20px rgba(0,0,0,0.2); }
         .service-card { background: rgba(255,255,255,0.95); padding: 30px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); border: 2px solid transparent; transition: all 0.3s ease; position: relative; overflow: hidden; cursor: pointer; backdrop-filter: blur(10px); }
         .service-card:hover { border-color: #ff1493; transform: translateY(-10px); box-shadow: 0 20px 40px rgba(255,20,147,0.3); }
         .service-card .service-overlay { position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: rgba(255,20,147,0.9); color: white; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 18px; opacity: 0; transition: opacity 0.3s ease; }
