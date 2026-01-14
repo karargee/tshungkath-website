@@ -558,13 +558,31 @@ export default function Home() {
       </section>
 
       {/* About */}
-      <section id="about" className="about" style={{
-        backgroundImage: 'linear-gradient(rgba(255,255,255,0.9), rgba(255,255,255,0.9)), url("/Snapchat-2048414736.jpg")',
-        backgroundSize: 'cover', backgroundPosition: 'center', backgroundAttachment: 'fixed'
-      }}>
+      <section id="about" className="about">
         <div className="container">
-          <h2>About Me</h2>
-          <p>Hello! I'm Kathy, your kinky trans mistress specializing in domination and submission experiences. I provide exceptional personalized sessions for dedicated sluts and subs, helping you explore your deepest desires and push your limits in a safe, discreet environment.</p>
+          <h2 className="section-title">About Me</h2>
+          <div style={{
+            background: 'rgba(255,255,255,0.95)', 
+            padding: '40px', 
+            borderRadius: '15px',
+            boxShadow: '0 10px 30px rgba(0,0,0,0.1)',
+            border: '2px solid #ff1493',
+            textAlign: 'center',
+            maxWidth: '800px',
+            margin: '0 auto'
+          }}>
+            <p style={{
+              fontSize: '1.2rem',
+              lineHeight: '1.8',
+              color: '#333',
+              marginBottom: '20px'
+            }}>Hello! I'm Kathy, your kinky trans mistress specializing in domination and submission experiences. I provide exceptional personalized sessions for dedicated sluts and subs, helping you explore your deepest desires and push your limits in a safe, discreet environment.</p>
+            <p style={{
+              fontSize: '1.1rem',
+              color: '#666',
+              fontStyle: 'italic'
+            }}>🔥 Ready to submit completely? Let me break you down and rebuild you as my perfect little toy. 💋</p>
+          </div>
         </div>
       </section>
 
