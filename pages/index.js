@@ -1,5 +1,5 @@
 import Head from 'next/head'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 
 export default function Home() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
@@ -7,6 +7,8 @@ export default function Home() {
   const [authModal, setAuthModal] = useState(false)
   const [lightboxOpen, setLightboxOpen] = useState(false)
   const [lightboxImage, setLightboxImage] = useState('')
+  const [galleryOpen, setGalleryOpen] = useState(false)
+  const [currentSlide, setCurrentSlide] = useState(0)
   const [liveChatOpen, setLiveChatOpen] = useState(false)
   const [chatMessages, setChatMessages] = useState([
     { sender: 'Mistress Kathy', message: 'Ready to submit to me, slave? Tell me your deepest fantasies 😈🔥', time: '10:30 AM' },
@@ -16,6 +18,17 @@ export default function Home() {
   const [newMessage, setNewMessage] = useState('')
   const [serviceModal, setServiceModal] = useState({ open: false, service: '' })
   const [paymentModal, setPaymentModal] = useState({ open: false, service: '', price: '', selectedOption: '' })
+  
+  // New advanced features state
+  const [darkMode, setDarkMode] = useState(false)
+  const [loading, setLoading] = useState(true)
+  const [scrollProgress, setScrollProgress] = useState(0)
+  const [showBackToTop, setShowBackToTop] = useState(false)
+  const [searchQuery, setSearchQuery] = useState('')
+  const [searchResults, setSearchResults] = useState([])
+  const [showSearch, setShowSearch] = useState(false)
+  const [notifications, setNotifications] = useState([])
+  const [installPrompt, setInstallPrompt] = useState(null)
 
   const servicePricing = {
     'Online Domination': [
@@ -60,6 +73,128 @@ export default function Home() {
       { name: 'Sissy Training (4hr)', price: 1000 },
       { name: 'Overnight Experience (8hr)', price: 2000 }
     ]
+  }
+
+  // Advanced features effects
+  useEffect(() => {
+    // Loading simulation
+    setTimeout(() => setLoading(false), 2000)
+    
+    // Scroll progress and back to top
+    const handleScroll = () => {
+      const totalScroll = document.documentElement.scrollTop
+      const windowHeight = document.documentElement.scrollHeight - document.documentElement.clientHeight
+      const scroll = `${totalScroll / windowHeight}`
+      setScrollProgress(scroll * 100)
+      setShowBackToTop(totalScroll > 300)
+    }
+    
+    // PWA install prompt
+    const handleInstallPrompt = (e) => {
+      e.preventDefault()
+      setInstallPrompt(e)
+      addNotification('📱 Install TshungKath as an app for better experience!')
+    }
+    
+    // Dark mode from localStorage
+    const savedTheme = localStorage.getItem('darkMode')
+    if (savedTheme) setDarkMode(JSON.parse(savedTheme))
+    
+    // Push notification permission
+    if ('Notification' in window && Notification.permission === 'default') {
+      Notification.requestPermission()
+    }
+    
+    window.addEventListener('scroll', handleScroll)
+    window.addEventListener('beforeinstallprompt', handleInstallPrompt)
+    
+    return () => {
+      window.removeEventListener('scroll', handleScroll)
+      window.removeEventListener('beforeinstallprompt', handleInstallPrompt)
+    }
+  }, [])
+  
+  // Search functionality
+  const handleSearch = (query) => {
+    setSearchQuery(query)
+    setShowSearch(true)
+    if (query.length > 0) {
+      const results = []
+      Object.keys(servicePricing).forEach(service => {
+        if (service.toLowerCase().includes(query.toLowerCase())) {
+          results.push({ type: 'service', name: service, category: 'Services' })
+        }
+        servicePricing[service].forEach(item => {
+          if (item.name.toLowerCase().includes(query.toLowerCase())) {
+            results.push({ type: 'item', name: item.name, price: item.price, category: service })
+          }
+        })
+      })
+      setSearchResults(results)
+    } else {
+      setSearchResults([])
+      setShowSearch(false)
+    }
+  }
+  
+  // Notification system
+  const addNotification = (message) => {
+    const id = Date.now()
+    setNotifications(prev => [...prev, { id, message }])
+    setTimeout(() => {
+      setNotifications(prev => prev.filter(n => n.id !== id))
+    }, 5000)
+  }
+  
+  // Theme toggle
+  const toggleDarkMode = () => {
+    const newMode = !darkMode
+    setDarkMode(newMode)
+    localStorage.setItem('darkMode', JSON.stringify(newMode))
+    addNotification(`Switched to ${newMode ? 'dark' : 'light'} mode`)
+  }
+  
+  // PWA install
+  const handleInstall = async () => {
+    if (installPrompt) {
+      installPrompt.prompt()
+      const result = await installPrompt.userChoice
+      if (result.outcome === 'accepted') {
+        addNotification('🎉 App installed successfully!')
+      }
+      setInstallPrompt(null)
+    }
+  }
+  
+  // Back to top
+  const scrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
+
+  // Gallery slideshow
+  const galleryImages = [
+    { src: '/20250811_080612.jpg', type: 'image' },
+    { src: '/20250923_033902.jpg', type: 'image' },
+    { src: '/5f859e2079de2-320-3.jpg', type: 'image' },
+    { src: '/ClipDown.App_323181084_859195861864401_767757521491526338_n (1).jpg', type: 'image' },
+    { src: '/IZ1KqdnC.jpeg', type: 'image' },
+    { src: '/Snapchat-2048414736.jpg', type: 'image' },
+    { src: '/Snapchat-2094116657.jpg', type: 'image' },
+    { src: '/Snapinsta.app_252779091_468028234603867_2548580010668401338_n_1080.jpg', type: 'image' },
+    { src: '/Snapinsta.app_323280597_482304177421626_3152935471351356946_n_1080.jpg', type: 'image' },
+    { src: '/SnapInsta.to_574484374_18534045874052735_872482252059731347_n.jpg', type: 'image' },
+    { src: '/SzU6IOIX.jpeg', type: 'image' },
+    { src: '/kathys%20gallery/video1.mp4', type: 'video' },
+    { src: '/kathys%20gallery/video2.mp4', type: 'video' },
+    { src: '/kathys%20gallery/video3.mp4', type: 'video' }
+  ]
+
+  const nextSlide = () => {
+    setCurrentSlide((prev) => (prev + 1) % galleryImages.length)
+  }
+
+  const prevSlide = () => {
+    setCurrentSlide((prev) => (prev - 1 + galleryImages.length) % galleryImages.length)
   }
 
   const serviceDetails = {
@@ -159,23 +294,172 @@ export default function Home() {
       <Head>
         <title>TshungKath - Professional Companion Services</title>
         <meta name="description" content="Professional personal companion and social services" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <meta name="theme-color" content="#ff1493" />
+        <link rel="manifest" href="/manifest.json" />
+        <link rel="icon" href="/favicon.ico" />
+        <link rel="stylesheet" href="/styles.css?v=2" />
       </Head>
+
+      {/* Loading Screen */}
+      {loading && (
+        <div style={{
+          position: 'fixed', top: 0, left: 0, width: '100%', height: '100%',
+          background: darkMode ? '#1a1a1a' : 'white', zIndex: 10002,
+          display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column'
+        }}>
+          <div style={{
+            width: '60px', height: '60px', border: '4px solid #f3f3f3',
+            borderTop: '4px solid #ff1493', borderRadius: '50%',
+            animation: 'spin 1s linear infinite', marginBottom: '20px'
+          }} />
+          <h2 style={{ color: '#ff1493', marginBottom: '10px' }}>TshungKath</h2>
+          <p style={{ color: darkMode ? '#ccc' : '#666' }}>Loading your desires...</p>
+        </div>
+      )}
+
+      {/* Scroll Progress Bar */}
+      <div style={{
+        position: 'fixed', top: 0, left: 0, width: `${scrollProgress}%`, height: '3px',
+        background: 'linear-gradient(90deg, #ff1493, #ff69b4)', zIndex: 10001,
+        transition: 'width 0.3s ease'
+      }} />
+
+      {/* Notifications */}
+      <div style={{
+        position: 'fixed', top: '20px', right: '20px', zIndex: 10001
+      }}>
+        {notifications.map(notification => (
+          <div key={notification.id} style={{
+            background: darkMode ? '#333' : '#28a745', color: 'white',
+            padding: '15px 20px', borderRadius: '8px', marginBottom: '10px',
+            boxShadow: '0 4px 12px rgba(0,0,0,0.15)', animation: 'slideIn 0.3s ease'
+          }}>
+            {notification.message}
+          </div>
+        ))}
+      </div>
+
+      {/* Theme Toggle & PWA Install */}
+      <div style={{
+        position: 'fixed', top: '80px', right: '20px', zIndex: 1001,
+        display: 'flex', flexDirection: 'column', gap: '10px'
+      }}>
+        <button onClick={toggleDarkMode} style={{
+          width: '50px', height: '50px', borderRadius: '50%',
+          background: darkMode ? '#333' : '#fff', border: '2px solid #ff1493',
+          color: darkMode ? '#fff' : '#333', cursor: 'pointer', fontSize: '20px'
+        }}>
+          {darkMode ? '☀️' : '🌙'}
+        </button>
+        {installPrompt && (
+          <button onClick={handleInstall} style={{
+            width: '50px', height: '50px', borderRadius: '50%',
+            background: '#ff1493', border: 'none', color: 'white',
+            cursor: 'pointer', fontSize: '20px'
+          }}>📱</button>
+        )}
+      </div>
+
+      {/* Search Bar */}
+      <div style={{
+        position: 'fixed', top: '80px', left: '50%', transform: 'translateX(-50%)',
+        zIndex: 1001, width: '300px'
+      }}>
+        <div style={{ position: 'relative' }}>
+          <input
+            type="text"
+            placeholder="Search services..."
+            value={searchQuery}
+            onChange={(e) => handleSearch(e.target.value)}
+            onFocus={() => setShowSearch(true)}
+            onBlur={() => setTimeout(() => setShowSearch(false), 200)}
+            style={{
+              width: '100%', padding: '12px 40px 12px 15px',
+              border: '2px solid #ff1493', borderRadius: '25px',
+              background: darkMode ? '#333' : 'white',
+              color: darkMode ? 'white' : '#333', outline: 'none'
+            }}
+          />
+          <span style={{
+            position: 'absolute', right: '15px', top: '50%',
+            transform: 'translateY(-50%)', color: '#ff1493', fontSize: '18px'
+          }}>🔍</span>
+        </div>
+        
+        {/* Search Results */}
+        {showSearch && searchResults.length > 0 && (
+          <div style={{
+            position: 'absolute', top: '100%', left: 0, right: 0,
+            background: darkMode ? '#333' : 'white', border: '1px solid #ddd',
+            borderRadius: '10px', marginTop: '5px', maxHeight: '300px',
+            overflow: 'auto', boxShadow: '0 4px 12px rgba(0,0,0,0.15)'
+          }}>
+            {searchResults.map((result, i) => (
+              <div key={i} style={{
+                padding: '12px 15px', borderBottom: '1px solid #eee',
+                cursor: 'pointer', color: darkMode ? 'white' : '#333'
+              }} onClick={() => {
+                if (result.type === 'service') {
+                  setServiceModal({ open: true, service: result.name })
+                }
+                setShowSearch(false)
+                setSearchQuery('')
+              }}>
+                <div style={{ fontWeight: 'bold' }}>{result.name}</div>
+                <div style={{ fontSize: '12px', color: '#666' }}>
+                  {result.category} {result.price && `- $${result.price}`}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+        
+        {/* Show "No results" when searching but no matches */}
+        {showSearch && searchQuery.length > 2 && searchResults.length === 0 && (
+          <div style={{
+            position: 'absolute', top: '100%', left: 0, right: 0,
+            background: darkMode ? '#333' : 'white', border: '1px solid #ddd',
+            borderRadius: '10px', marginTop: '5px', padding: '15px',
+            color: darkMode ? 'white' : '#333', textAlign: 'center'
+          }}>
+            No services found for "{searchQuery}"
+          </div>
+        )}
+      </div>
 
       {/* Mobile Menu */}
       {mobileMenuOpen && (
         <div style={{
-          position: 'fixed', top: '70px', right: '20px', width: '200px',
-          background: '#fff', border: '1px solid #ddd', borderRadius: '8px',
-          zIndex: 50000, boxShadow: '0 4px 12px rgba(0,0,0,0.15)'
+          position: 'fixed', top: '70px', left: '0', right: '0',
+          background: 'rgba(0,0,0,0.95)', zIndex: 50000,
+          padding: '20px', backdropFilter: 'blur(10px)'
         }}>
-          <ul style={{ listStyle: 'none', margin: 0, padding: 0 }}>
-            {['🏠 Home', '👤 About', '💼 Services', '🔥 Community', '💰 Pricing', '📅 Book Now', '📞 Contact'].map((item, i) => (
-              <li key={i}><a href={['#home','#about','#services','/community','#pricing','#booking','#contact'][i]} onClick={() => setMobileMenuOpen(false)} style={{
-                display: 'block', padding: '12px 16px', color: '#333', textDecoration: 'none',
-                borderBottom: '1px solid #eee', fontSize: '14px'
-              }}>{item}</a></li>
-            ))}
-          </ul>
+          <div style={{
+            maxWidth: '400px', margin: '0 auto',
+            background: 'rgba(255,255,255,0.1)', borderRadius: '15px',
+            border: '2px solid #ff1493'
+          }}>
+            <ul style={{ listStyle: 'none', margin: 0, padding: 0 }}>
+              {[
+                { text: '🏠 Home', href: '#home' },
+                { text: '👤 About', href: '#about' },
+                { text: '💼 Services', href: '#services' },
+                { text: '🔥 Community', href: '/community' },
+                { text: '💰 Pricing', href: '#pricing' },
+                { text: '📅 Book Now', href: '#booking' },
+                { text: '📞 Contact', href: '#contact' }
+              ].map((item, i) => (
+                <li key={i}>
+                  <a href={item.href} onClick={() => setMobileMenuOpen(false)} style={{
+                    display: 'block', padding: '15px 20px', color: 'white', textDecoration: 'none',
+                    borderBottom: i < 6 ? '1px solid rgba(255,20,147,0.3)' : 'none',
+                    fontSize: '16px', fontWeight: 'bold', transition: 'all 0.3s ease'
+                  }}>{item.text}</a>
+                </li>
+              ))}
+            </ul>
+          </div>
         </div>
       )}
 
@@ -238,7 +522,16 @@ export default function Home() {
               }}>👻</a>
             </div>
             {user ? (
-              <span style={{color: 'white', marginRight: '15px'}}>Welcome, {user.name || user.email}</span>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <span style={{color: 'white', fontSize: '14px'}}>Welcome, {user.name || user.email}</span>
+                <button onClick={() => {
+                  setUser(null)
+                  addNotification('Signed out successfully')
+                }} style={{
+                  background: '#dc3545', border: 'none', color: 'white', fontSize: '12px',
+                  padding: '6px 10px', borderRadius: '4px', cursor: 'pointer'
+                }}>Sign Out</button>
+              </div>
             ) : (
               <button onClick={() => setAuthModal(true)} style={{
                 background: '#ff1493', border: 'none', color: 'white', fontSize: '18px',
@@ -306,53 +599,112 @@ export default function Home() {
         </div>
       </section>
 
-
-
       {/* Gallery */}
       <section id="gallery" className="gallery">
         <div className="container">
           <h2>Gallery</h2>
           <div className="gallery-folder" onClick={() => {
-            if (confirm('🔞 Age Verification Required\n\nYou must be 18+ to view this content.')) {
-              document.getElementById('galleryContent').style.display = 'block'
+            if (confirm('🔞 Age Verification Required\\n\\nYou must be 18+ to view this content.')) {
+              setGalleryOpen(true)
+              setCurrentSlide(0)
             }
           }}>
             <div className="folder-icon">📁</div>
             <h3>Private Gallery</h3>
             <p>15 items - 🔞 18+ Content Only</p>
           </div>
-          <div id="galleryContent" style={{ display: 'none' }}>
-            <div className="gallery-grid">
-              {[
-                '/20250811_080612.jpg', '/20250818_053853.jpg', '/20250923_033902.jpg', '/20251013_205914.jpg',
-                '/5f859e2079de2-320-3.jpg', '/ClipDown.App_323181084_859195861864401_767757521491526338_n (1).jpg',
-                '/IZ1KqdnC.jpeg', '/Snapchat-2048414736.jpg', '/Snapchat-2094116657.jpg',
-                '/Snapinsta.app_252779091_468028234603867_2548580010668401338_n_1080.jpg',
-                '/Snapinsta.app_323280597_482304177421626_3152935471351356946_n_1080.jpg',
-                '/SnapInsta.to_574484374_18534045874052735_872482252059731347_n.jpg', '/SzU6IOIX.jpeg'
-              ].map((img, i) => (
-                <div key={i} className="gallery-item" onClick={() => { setLightboxImage(img); setLightboxOpen(true); }}>
-                  <img src={img} alt="Gallery" loading="lazy" />
+        </div>
+      </section>
+
+      {/* Gallery Slideshow Modal */}
+      {galleryOpen && (
+        <div style={{
+          position: 'fixed', top: 0, left: 0, width: '100%', height: '100%',
+          background: 'rgba(0,0,0,0.95)', zIndex: 10001, display: 'flex',
+          alignItems: 'center', justifyContent: 'center'
+        }}>
+          {/* Close Button */}
+          <button onClick={() => setGalleryOpen(false)} style={{
+            position: 'absolute', top: '20px', right: '20px', background: 'rgba(255,20,147,0.8)',
+            border: 'none', color: 'white', fontSize: '30px', width: '50px', height: '50px',
+            borderRadius: '50%', cursor: 'pointer', zIndex: 10002
+          }}>×</button>
+          
+          {/* Previous Button */}
+          <button onClick={prevSlide} style={{
+            position: 'absolute', left: '20px', background: 'rgba(255,20,147,0.8)',
+            border: 'none', color: 'white', fontSize: '30px', width: '50px', height: '50px',
+            borderRadius: '50%', cursor: 'pointer', zIndex: 10002
+          }}>‹</button>
+          
+          {/* Next Button */}
+          <button onClick={nextSlide} style={{
+            position: 'absolute', right: '20px', background: 'rgba(255,20,147,0.8)',
+            border: 'none', color: 'white', fontSize: '30px', width: '50px', height: '50px',
+            borderRadius: '50%', cursor: 'pointer', zIndex: 10002
+          }}>›</button>
+          
+          {/* Main Image/Video */}
+          <div style={{ textAlign: 'center', maxWidth: '90%', maxHeight: '90%' }}>
+            {galleryImages[currentSlide].type === 'video' ? (
+              <video 
+                src={galleryImages[currentSlide].src} 
+                controls 
+                autoPlay 
+                muted
+                style={{
+                  maxWidth: '100%', maxHeight: '80vh', borderRadius: '10px',
+                  boxShadow: '0 10px 30px rgba(255,20,147,0.5)'
+                }}
+              />
+            ) : (
+              <img src={galleryImages[currentSlide].src} alt={`Gallery ${currentSlide + 1}`} style={{
+                maxWidth: '100%', maxHeight: '80vh', objectFit: 'contain',
+                borderRadius: '10px', boxShadow: '0 10px 30px rgba(255,20,147,0.5)'
+              }} />
+            )}
+            
+            {/* Image Counter */}
+            <div style={{
+              marginTop: '20px', color: 'white', fontSize: '18px',
+              background: 'rgba(255,20,147,0.8)', padding: '10px 20px',
+              borderRadius: '20px', display: 'inline-block'
+            }}>
+              {currentSlide + 1} / {galleryImages.length}
+            </div>
+            
+            {/* Thumbnail Navigation */}
+            <div style={{
+              display: 'flex', justifyContent: 'center', gap: '10px',
+              marginTop: '20px', flexWrap: 'wrap', maxWidth: '600px', margin: '20px auto 0'
+            }}>
+              {galleryImages.map((item, i) => (
+                <div key={i} onClick={() => setCurrentSlide(i)} style={{
+                  width: '60px', height: '60px', cursor: 'pointer', position: 'relative',
+                  border: currentSlide === i ? '3px solid #ff1493' : '2px solid transparent',
+                  borderRadius: '8px', overflow: 'hidden', opacity: currentSlide === i ? 1 : 0.6
+                }}>
+                  {item.type === 'video' ? (
+                    <>
+                      <video src={item.src} style={{
+                        width: '100%', height: '100%', objectFit: 'cover'
+                      }} />
+                      <div style={{
+                        position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)',
+                        color: 'white', fontSize: '20px', textShadow: '0 0 5px rgba(0,0,0,0.8)'
+                      }}>▶</div>
+                    </>
+                  ) : (
+                    <img src={item.src} alt={`Thumb ${i + 1}`} style={{
+                      width: '100%', height: '100%', objectFit: 'cover'
+                    }} />
+                  )}
                 </div>
               ))}
             </div>
-            <div className="dungeon-gallery">
-              <h3>🏰 Dungeon Equipment</h3>
-              <div className="gallery-grid">
-                {[
-                  '/dungeon/image-1-1.jpg', '/dungeon/IMG_1176-1-scaled.jpeg', '/dungeon/IMG_2603-scaled.jpg',
-                  '/dungeon/IMG_2608-scaled.jpg', '/dungeon/IMG_2616-scaled.jpg', '/dungeon/Milking-Table-1.jpg',
-                  '/dungeon/photo_2025-12-26_22-53-00.jpg', '/dungeon/Sybian-on-bench.jpg'
-                ].map((img, i) => (
-                  <div key={i} className="gallery-item" onClick={() => { setLightboxImage(img); setLightboxOpen(true); }}>
-                    <img src={img} alt="Dungeon Equipment" loading="lazy" />
-                  </div>
-                ))}
-              </div>
-            </div>
           </div>
         </div>
-      </section>
+      )}
 
       {/* Testimonials */}
       <section id="testimonials" className="testimonials" style={{
@@ -544,7 +896,7 @@ export default function Home() {
                 const btcAddress = 'bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh'
                 const amount = paymentModal.price > 0 ? paymentModal.price : prompt('Enter tribute amount:')
                 if (amount) {
-                  alert(`₿ Bitcoin Payment\n\nSend $${amount} worth of Bitcoin to:\n${btcAddress}\n\nThen contact me with transaction ID.`)
+                  alert(`₿ Bitcoin Payment\\n\\nSend $${amount} worth of Bitcoin to:\\n${btcAddress}\\n\\nThen contact me with transaction ID.`)
                 }
               }} style={{
                 background: 'linear-gradient(45deg, #f7931a, #ffb347)', color: 'white',
@@ -624,8 +976,15 @@ export default function Home() {
       {/* Live Chat Widget */}
       {liveChatOpen && (
         <div style={{
-          position: 'fixed', bottom: '20px', right: '20px', width: '350px', height: '500px',
-          background: 'white', borderRadius: '15px', boxShadow: '0 10px 30px rgba(0,0,0,0.3)', zIndex: 10000
+          position: 'fixed', 
+          bottom: '20px', 
+          right: '20px', 
+          width: window.innerWidth < 768 ? '90vw' : '350px', 
+          height: window.innerWidth < 768 ? '70vh' : '500px',
+          background: 'white', 
+          borderRadius: '15px', 
+          boxShadow: '0 10px 30px rgba(0,0,0,0.3)', 
+          zIndex: 10000
         }}>
           <div style={{
             background: '#000', color: 'white', padding: '15px', borderRadius: '15px 15px 0 0',
@@ -705,29 +1064,86 @@ export default function Home() {
         </div>
       )}
 
-      {/* Live Chat Button */}
-      <button onClick={() => setLiveChatOpen(!liveChatOpen)} style={{
-        position: 'fixed', bottom: '20px', right: '20px', width: '60px', height: '60px',
-        borderRadius: '50%', background: 'linear-gradient(45deg, #ff1493, #ff69b4)',
-        border: 'none', color: 'white', fontSize: '24px', cursor: 'pointer'
-      }}>💬</button>
+      {/* Back to Top Button */}
+      {showBackToTop && (
+        <button onClick={scrollToTop} style={{
+          position: 'fixed', bottom: '100px', right: '20px',
+          width: '50px', height: '50px', borderRadius: '50%',
+          background: 'linear-gradient(45deg, #ff1493, #ff69b4)',
+          border: 'none', color: 'white', fontSize: '20px',
+          cursor: 'pointer', zIndex: 9998, boxShadow: '0 4px 12px rgba(0,0,0,0.3)'
+        }}>↑</button>
+      )}
+
+
 
       {/* Auth Modal */}
       {authModal && (
         <div onClick={() => setAuthModal(false)} style={{
           position: 'fixed', top: 0, left: 0, width: '100%', height: '100%',
-          background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 10000
+          background: 'rgba(0,0,0,0.8)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 10000
         }}>
           <div onClick={(e) => e.stopPropagation()} style={{
             background: 'white', borderRadius: '15px', padding: '40px', maxWidth: '400px', width: '90%'
           }}>
-            <h3>Sign In</h3>
-            <input type="email" placeholder="Email" style={{ width: '100%', padding: '15px', marginBottom: '20px', border: '2px solid #e0e0e0', borderRadius: '10px' }} />
-            <input type="password" placeholder="Password" style={{ width: '100%', padding: '15px', marginBottom: '20px', border: '2px solid #e0e0e0', borderRadius: '10px' }} />
-            <button style={{
-              width: '100%', padding: '15px', background: 'linear-gradient(45deg, #ff1493, #ff69b4)',
-              color: 'white', border: 'none', borderRadius: '10px', cursor: 'pointer'
-            }}>Sign In</button>
+            <h3 style={{ color: '#ff1493', textAlign: 'center', marginBottom: '30px' }}>👤 Sign In</h3>
+            <form onSubmit={async (e) => {
+              e.preventDefault()
+              const formData = new FormData(e.target)
+              const email = formData.get('email')
+              const password = formData.get('password')
+              
+              try {
+                const response = await fetch('http://localhost:5002/api/login', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ email, password })
+                })
+                
+                const data = await response.json()
+                
+                if (response.ok) {
+                  setUser(data.user)
+                  localStorage.setItem('authToken', data.token)
+                  setAuthModal(false)
+                  addNotification(`Welcome back, ${data.user.username}! 🔥`)
+                } else {
+                  alert(data.error || 'Login failed')
+                }
+              } catch (error) {
+                alert('Connection error. Please try again.')
+              }
+            }}>
+              <input 
+                name="email" 
+                type="email" 
+                placeholder="Email" 
+                required
+                style={{ 
+                  width: '100%', padding: '15px', marginBottom: '20px', 
+                  border: '2px solid #e0e0e0', borderRadius: '10px', 
+                  boxSizing: 'border-box', outline: 'none'
+                }} 
+              />
+              <input 
+                name="password" 
+                type="password" 
+                placeholder="Password" 
+                required
+                style={{ 
+                  width: '100%', padding: '15px', marginBottom: '20px', 
+                  border: '2px solid #e0e0e0', borderRadius: '10px', 
+                  boxSizing: 'border-box', outline: 'none'
+                }} 
+              />
+              <button type="submit" style={{
+                width: '100%', padding: '15px', background: 'linear-gradient(45deg, #ff1493, #ff69b4)',
+                color: 'white', border: 'none', borderRadius: '10px', cursor: 'pointer', fontWeight: 'bold'
+              }}>Sign In</button>
+            </form>
+            <div style={{ textAlign: 'center', marginTop: '20px', color: '#666' }}>
+              <p>Don't have an account? <a href="/community" style={{ color: '#ff1493' }}>Register here</a></p>
+            </div>
           </div>
         </div>
       )}
@@ -807,7 +1223,31 @@ export default function Home() {
         ))}
       </div>
 
+      {/* Live Chat Button */}
+      <button onClick={() => setLiveChatOpen(!liveChatOpen)} style={{
+        position: 'fixed', 
+        bottom: '20px', 
+        right: '20px', 
+        width: '60px', 
+        height: '60px',
+        borderRadius: '50%', 
+        background: 'linear-gradient(45deg, #ff1493, #ff69b4)',
+        border: 'none', 
+        color: 'white', 
+        fontSize: '24px', 
+        cursor: 'pointer',
+        zIndex: 9999
+      }}>💬</button>
+
       <style jsx>{`
+        @keyframes spin {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
+        }
+        @keyframes slideIn {
+          from { transform: translateX(100%); opacity: 0; }
+          to { transform: translateX(0); opacity: 1; }
+        }
         @keyframes pulse {
           0%, 100% { transform: scale(1); }
           50% { transform: scale(1.1); }
@@ -831,9 +1271,10 @@ export default function Home() {
         }
         .navbar { position: fixed; top: 0; width: 100%; background: rgba(0,0,0,0.9); z-index: 1000; padding: 15px 0; }
         .nav-container { display: flex; justify-content: space-between; align-items: center; max-width: 1200px; margin: 0 auto; padding: 0 20px; }
-        .nav-right { display: flex; align-items: center; }
+        .nav-right { display: flex; align-items: center; gap: 15px; }
+        .header-social { display: flex; align-items: center; gap: 10px; }
         .logo { color: #ff1493; font-size: 1.8rem; font-weight: bold; margin: 0; }
-        .mobile-menu-btn { background: #ff1493; border: none; color: white; padding: 8px 12px; border-radius: 5px; cursor: pointer; }
+        .mobile-menu-btn { background: #ff1493; border: none; color: white; padding: 8px 12px; border-radius: 5px; cursor: pointer; display: none; }
         .hero { height: 100vh; display: flex; align-items: center; justify-content: center; text-align: center; color: white; background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab); }
         .hero h1 { font-size: 4rem; margin-bottom: 20px; text-shadow: 3px 3px 6px rgba(0,0,0,0.7); background: linear-gradient(45deg, #ff1493, #ff69b4, #fff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; animation: glow 3s ease-in-out infinite alternate; }
         .hero p { font-size: 1.4rem; margin-bottom: 30px; text-shadow: 2px 2px 4px rgba(0,0,0,0.7); max-width: 700px; }
@@ -899,9 +1340,20 @@ export default function Home() {
         .footer-bottom p { margin: 5px 0; color: #999; }
         @media (max-width: 768px) {
           .footer-content { grid-template-columns: 1fr; gap: 30px; }
-        }
-          .hero h1 { font-size: 2rem; }
-          .services-grid, .dungeon-grid { grid-template-columns: 1fr; }
+          .hero h1 { font-size: 2.5rem !important; }
+          .hero p { font-size: 1.1rem !important; padding: 0 10px; }
+          .services-grid, .dungeon-grid, .testimonials-grid, .pricing-grid { grid-template-columns: 1fr !important; }
+          .nav-container { padding: 0 10px !important; }
+          .logo { font-size: 1.4rem !important; }
+          .container { padding: 0 10px !important; }
+          .about h2, .services h2, .gallery h2, .testimonials h2, .pricing h2, .booking h2, .contact h2 { font-size: 2rem !important; }
+          .service-card, .testimonial-card, .pricing-card { margin: 0 10px; }
+          .booking-form { margin: 0 10px; padding: 20px !important; }
+          .contact-item { margin: 0 10px 15px 10px; padding: 15px !important; font-size: 1rem !important; }
+          .gallery-grid { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)) !important; }
+          .header-social { display: none !important; }
+          .nav-right { gap: 10px; }
+          .mobile-menu-btn { display: block !important; }
         }
       `}</style>
     </>
