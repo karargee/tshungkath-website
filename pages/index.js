@@ -5,6 +5,8 @@ export default function Home() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [user, setUser] = useState(null)
   const [authModal, setAuthModal] = useState(false)
+  const [authMode, setAuthMode] = useState('login') // 'login', 'register', 'verify'
+  const [verificationEmail, setVerificationEmail] = useState('')
   const [lightboxOpen, setLightboxOpen] = useState(false)
   const [lightboxImage, setLightboxImage] = useState('')
   const [galleryOpen, setGalleryOpen] = useState(false)
@@ -79,6 +81,13 @@ export default function Home() {
   useEffect(() => {
     // Loading simulation
     setTimeout(() => setLoading(false), 2000)
+    
+    // Load saved user from localStorage
+    const savedUser = localStorage.getItem('user')
+    const savedToken = localStorage.getItem('authToken')
+    if (savedUser && savedToken) {
+      setUser(JSON.parse(savedUser))
+    }
     
     // Scroll progress and back to top
     const handleScroll = () => {
@@ -526,6 +535,8 @@ export default function Home() {
                 <span style={{color: 'white', fontSize: '14px'}}>Welcome, {user.name || user.email}</span>
                 <button onClick={() => {
                   setUser(null)
+                  localStorage.removeItem('user')
+                  localStorage.removeItem('authToken')
                   addNotification('Signed out successfully')
                 }} style={{
                   background: '#dc3545', border: 'none', color: 'white', fontSize: '12px',
@@ -725,22 +736,26 @@ export default function Home() {
       )}
 
       {/* Testimonials */}
-      <section id="testimonials" className="testimonials" style={{
-        backgroundImage: 'linear-gradient(rgba(255,255,255,0.9), rgba(255,255,255,0.9)), url("/IZ1KqdnC.jpeg")',
-        backgroundSize: 'cover', backgroundPosition: 'center'
-      }}>
+      <section id="testimonials" className="testimonials">
         <div className="container">
-          <h2>Client Reviews</h2>
+          <h2 className="section-title">Client Reviews</h2>
           <div className="testimonials-grid">
             {[
               { stars: "⭐⭐⭐⭐⭐", text: "Kathy broke me completely and rebuilt me as her perfect sissy slut. Life-changing experience!", client: "- Sissy Jessica" },
               { stars: "⭐⭐⭐⭐⭐", text: "Best mistress ever! She knows exactly how to make me suffer and beg for more. Addicted!", client: "- Slave Mike" },
               { stars: "⭐⭐⭐⭐⭐", text: "My chastity training with Kathy was intense. She owns my cock now and I love it!", client: "- Locked Boy" }
             ].map((testimonial, i) => (
-              <div key={i} className="testimonial-card">
-                <div className="stars">{testimonial.stars}</div>
-                <p>{testimonial.text}</p>
-                <span className="client-name">{testimonial.client}</span>
+              <div key={i} style={{
+                background: 'rgba(255,255,255,0.95)',
+                padding: '30px',
+                borderRadius: '15px',
+                boxShadow: '0 10px 30px rgba(0,0,0,0.1)',
+                border: '2px solid #ff1493',
+                textAlign: 'center'
+              }}>
+                <div style={{ color: '#ffd700', fontSize: '1.2rem', marginBottom: '15px' }}>{testimonial.stars}</div>
+                <p style={{ color: '#333', fontSize: '16px', lineHeight: '1.6', marginBottom: '15px' }}>{testimonial.text}</p>
+                <span style={{ fontStyle: 'italic', color: '#666', fontSize: '14px' }}>{testimonial.client}</span>
               </div>
             ))}
           </div>
@@ -1104,64 +1119,162 @@ export default function Home() {
           <div onClick={(e) => e.stopPropagation()} style={{
             background: 'white', borderRadius: '15px', padding: '40px', maxWidth: '400px', width: '90%'
           }}>
-            <h3 style={{ color: '#ff1493', textAlign: 'center', marginBottom: '30px' }}>👤 Sign In</h3>
-            <form onSubmit={async (e) => {
-              e.preventDefault()
-              const formData = new FormData(e.target)
-              const email = formData.get('email')
-              const password = formData.get('password')
-              
-              try {
-                const response = await fetch('http://localhost:5002/api/login', {
-                  method: 'POST',
-                  headers: { 'Content-Type': 'application/json' },
-                  body: JSON.stringify({ email, password })
-                })
-                
-                const data = await response.json()
-                
-                if (response.ok) {
-                  setUser(data.user)
-                  localStorage.setItem('authToken', data.token)
-                  setAuthModal(false)
-                  addNotification(`Welcome back, ${data.user.username}! 🔥`)
-                } else {
-                  alert(data.error || 'Login failed')
-                }
-              } catch (error) {
-                alert('Connection error. Please try again.')
-              }
-            }}>
-              <input 
-                name="email" 
-                type="email" 
-                placeholder="Email" 
-                required
-                style={{ 
-                  width: '100%', padding: '15px', marginBottom: '20px', 
-                  border: '2px solid #e0e0e0', borderRadius: '10px', 
-                  boxSizing: 'border-box', outline: 'none'
-                }} 
-              />
-              <input 
-                name="password" 
-                type="password" 
-                placeholder="Password" 
-                required
-                style={{ 
-                  width: '100%', padding: '15px', marginBottom: '20px', 
-                  border: '2px solid #e0e0e0', borderRadius: '10px', 
-                  boxSizing: 'border-box', outline: 'none'
-                }} 
-              />
-              <button type="submit" style={{
-                width: '100%', padding: '15px', background: 'linear-gradient(45deg, #ff1493, #ff69b4)',
-                color: 'white', border: 'none', borderRadius: '10px', cursor: 'pointer', fontWeight: 'bold'
-              }}>Sign In</button>
-            </form>
-            <div style={{ textAlign: 'center', marginTop: '20px', color: '#666' }}>
-              <p>Don't have an account? <a href="/community" style={{ color: '#ff1493' }}>Register here</a></p>
-            </div>
+            {authMode === 'login' && (
+              <>
+                <h3 style={{ color: '#ff1493', textAlign: 'center', marginBottom: '30px' }}>👤 Sign In</h3>
+                <form onSubmit={async (e) => {
+                  e.preventDefault()
+                  const formData = new FormData(e.target)
+                  const email = formData.get('email')
+                  const password = formData.get('password')
+                  
+                  try {
+                    const response = await fetch('http://localhost:5002/api/login', {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({ email, password })
+                    })
+                    
+                    const data = await response.json()
+                    
+                    if (response.ok) {
+                      setUser(data.user)
+                      localStorage.setItem('authToken', data.token)
+                      localStorage.setItem('user', JSON.stringify(data.user))
+                      setAuthModal(false)
+                      addNotification(`Welcome back, ${data.user.username}! 🔥`)
+                    } else {
+                      alert(data.error || 'Login failed')
+                    }
+                  } catch (error) {
+                    alert('Connection error. Please try again.')
+                  }
+                }}>
+                  <input name="email" type="email" placeholder="Email" required style={{ 
+                    width: '100%', padding: '15px', marginBottom: '20px', 
+                    border: '2px solid #e0e0e0', borderRadius: '10px', 
+                    boxSizing: 'border-box', outline: 'none'
+                  }} />
+                  <input name="password" type="password" placeholder="Password" required style={{ 
+                    width: '100%', padding: '15px', marginBottom: '20px', 
+                    border: '2px solid #e0e0e0', borderRadius: '10px', 
+                    boxSizing: 'border-box', outline: 'none'
+                  }} />
+                  <button type="submit" style={{
+                    width: '100%', padding: '15px', background: 'linear-gradient(45deg, #ff1493, #ff69b4)',
+                    color: 'white', border: 'none', borderRadius: '10px', cursor: 'pointer', fontWeight: 'bold'
+                  }}>Sign In</button>
+                </form>
+                <div style={{ textAlign: 'center', marginTop: '20px', color: '#666' }}>
+                  <p>Don't have an account? <button onClick={() => setAuthMode('register')} style={{ color: '#ff1493', background: 'none', border: 'none', cursor: 'pointer', textDecoration: 'underline' }}>Register here</button></p>
+                </div>
+              </>
+            )}
+            
+            {authMode === 'register' && (
+              <>
+                <h3 style={{ color: '#ff1493', textAlign: 'center', marginBottom: '30px' }}>🔥 Join Our Community</h3>
+                <form onSubmit={async (e) => {
+                  e.preventDefault()
+                  const formData = new FormData(e.target)
+                  const username = formData.get('username')
+                  const email = formData.get('email')
+                  const password = formData.get('password')
+                  
+                  try {
+                    const response = await fetch('http://localhost:5002/api/register', {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({ username, email, password })
+                    })
+                    
+                    const data = await response.json()
+                    
+                    if (response.ok) {
+                      setVerificationEmail(email)
+                      setAuthMode('verify')
+                      addNotification('📧 Verification code sent to your email!')
+                    } else {
+                      alert(data.error || 'Registration failed')
+                    }
+                  } catch (error) {
+                    alert('Connection error. Please try again.')
+                  }
+                }}>
+                  <input name="username" type="text" placeholder="Username" required style={{ 
+                    width: '100%', padding: '15px', marginBottom: '20px', 
+                    border: '2px solid #e0e0e0', borderRadius: '10px', 
+                    boxSizing: 'border-box', outline: 'none'
+                  }} />
+                  <input name="email" type="email" placeholder="Email" required style={{ 
+                    width: '100%', padding: '15px', marginBottom: '20px', 
+                    border: '2px solid #e0e0e0', borderRadius: '10px', 
+                    boxSizing: 'border-box', outline: 'none'
+                  }} />
+                  <input name="password" type="password" placeholder="Password" required style={{ 
+                    width: '100%', padding: '15px', marginBottom: '20px', 
+                    border: '2px solid #e0e0e0', borderRadius: '10px', 
+                    boxSizing: 'border-box', outline: 'none'
+                  }} />
+                  <button type="submit" style={{
+                    width: '100%', padding: '15px', background: 'linear-gradient(45deg, #ff1493, #ff69b4)',
+                    color: 'white', border: 'none', borderRadius: '10px', cursor: 'pointer', fontWeight: 'bold'
+                  }}>Register</button>
+                </form>
+                <div style={{ textAlign: 'center', marginTop: '20px', color: '#666' }}>
+                  <p>Already have an account? <button onClick={() => setAuthMode('login')} style={{ color: '#ff1493', background: 'none', border: 'none', cursor: 'pointer', textDecoration: 'underline' }}>Sign in here</button></p>
+                </div>
+              </>
+            )}
+            
+            {authMode === 'verify' && (
+              <>
+                <h3 style={{ color: '#ff1493', textAlign: 'center', marginBottom: '30px' }}>📧 Verify Your Email</h3>
+                <p style={{ textAlign: 'center', marginBottom: '30px', color: '#666' }}>We sent a 6-digit code to <strong>{verificationEmail}</strong></p>
+                <form onSubmit={async (e) => {
+                  e.preventDefault()
+                  const formData = new FormData(e.target)
+                  const code = formData.get('code')
+                  
+                  try {
+                    const response = await fetch('http://localhost:5002/api/verify-email', {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({ email: verificationEmail, code })
+                    })
+                    
+                    const data = await response.json()
+                    
+                    if (response.ok) {
+                      setUser(data.user)
+                      localStorage.setItem('authToken', data.token)
+                      localStorage.setItem('user', JSON.stringify(data.user))
+                      setAuthModal(false)
+                      setAuthMode('login')
+                      addNotification(`Welcome to TshungKath, ${data.user.username}! 🔥`)
+                    } else {
+                      alert(data.error || 'Verification failed')
+                    }
+                  } catch (error) {
+                    alert('Connection error. Please try again.')
+                  }
+                }}>
+                  <input name="code" type="text" placeholder="Enter 6-digit code" maxLength="6" required style={{ 
+                    width: '100%', padding: '15px', marginBottom: '20px', 
+                    border: '2px solid #e0e0e0', borderRadius: '10px', 
+                    boxSizing: 'border-box', outline: 'none', textAlign: 'center',
+                    fontSize: '1.5rem', letterSpacing: '0.5rem'
+                  }} />
+                  <button type="submit" style={{
+                    width: '100%', padding: '15px', background: 'linear-gradient(45deg, #ff1493, #ff69b4)',
+                    color: 'white', border: 'none', borderRadius: '10px', cursor: 'pointer', fontWeight: 'bold'
+                  }}>Verify Account</button>
+                </form>
+                <div style={{ textAlign: 'center', marginTop: '20px', color: '#666' }}>
+                  <p>Didn't receive the code? <button onClick={() => setAuthMode('register')} style={{ color: '#ff1493', background: 'none', border: 'none', cursor: 'pointer', textDecoration: 'underline' }}>Resend</button></p>
+                </div>
+              </>
+            )}
           </div>
         </div>
       )}
