@@ -979,26 +979,14 @@ export default function Home() {
                   </ul>
                 </div>
                 <div style={{ textAlign: 'center', marginTop: '30px' }}>
-                  <h3 style={{ color: '#ff1493', marginBottom: '20px' }}>Select Your Option:</h3>
-                  <div style={{ display: 'grid', gap: '15px', marginBottom: '20px' }}>
-                    {servicePricing[serviceModal.service]?.map((option, i) => (
-                      <button key={i} onClick={() => setPaymentModal({ open: true, service: serviceModal.service, price: option.price, selectedOption: option.name })} style={{
-                        background: 'linear-gradient(45deg, #ff1493, #ff69b4)', color: 'white',
-                        border: 'none', padding: '15px 20px', borderRadius: '10px',
-                        fontSize: '16px', cursor: 'pointer', fontWeight: 'bold'
-                      }}>
-                        {option.name} - ${option.price > 0 ? option.price : 'Custom'}
-                      </button>
-                    ))}
-                  </div>
                   <button onClick={() => {
                     setServiceModal({ open: false, service: '' })
                     document.getElementById('booking').scrollIntoView({ behavior: 'smooth' })
                   }} style={{
-                    background: '#666', color: 'white',
-                    border: 'none', padding: '10px 20px', borderRadius: '10px',
-                    fontSize: '14px', cursor: 'pointer'
-                  }}>Or Book Custom Session</button>
+                    background: 'linear-gradient(45deg, #ff1493, #ff69b4)', color: 'white',
+                    border: 'none', padding: '15px 30px', borderRadius: '10px',
+                    fontSize: '16px', cursor: 'pointer', fontWeight: 'bold'
+                  }}>Book Custom Session</button>
                 </div>
               </>
             )}
